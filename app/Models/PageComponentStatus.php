@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class PageComponentStatus extends  BaseModel
+{
+    use HasFactory;
+    protected $guarded = [];
+
+    protected $casts = [
+        'relationship_config' => 'array',
+        'advanced_relationship_config' => 'array',
+    ];
+}

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- highlight js cdn -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+        integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- tailwind cdn -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .active-header {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        header {
+            background-color: #f4f4f4;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+
+    <!-- <header>
+         <h2 class="text-xl font-bold mb-4" style="font-size: 40px;">Documentation</h2>
+        <h1>DDSS Buisness Website</h1>
+        <p>Version 1.0</p>
+        <p>Build your business website hassle free. Buy th escript, download it, and set up your website like your own way.</p>
+    </header> -->
+
+    <!-- Main Layout -->
+    <div class="flex">
+
+        <!-- Left Sidebar -->
+        <aside class="w-[20%] bg-white border-r p-4 h-screen sticky top-0 space-y-4">
+            <!-- <h2 class="text-xl font-bold mb-4">Documentation</h2> -->
+            <div>
+                <img src="../public/logo/image.png" alt="logo" class="w-32 mx-auto py-5">
+            </div>
+            <nav>
+                <ul>
+                    <li class="mb-2">
+                        <a href="#introduction"
+                            class="block p-2 rounded hover:bg-[#4caf50] hover:text-white transition-colors duration-300 header-link">Introduction</a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#features"
+                            class="block p-2 rounded hover:bg-[#4caf50] hover:text-white transition-colors duration-300 header-link">Usage</a>
+                    </li>
+
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Right Content Section -->
+        <section class="w-[80%] p-6 bg-gray-50">
+            <div id="content-area">
+                <h1 class="text-[40px] font-medium text-[#232323]">Welcome to the Documentation</h1>
+                <p class="mt-4 text-[#232323] text-[14px]">Click on the headers in the sidebar to view the content of
+                    each section.</p>
+                <div class="code-container relative">
+                    <button
+                        class="copy-code-btn absolute top-6 right-2 px-4 py-2 bg-white text-white text-opacity-60 bg-opacity-[0.06]"><span><i
+                                class="fa-regular fa-copy"></i></span></button>
+                    <span
+                        class="copy-message absolute top-6 right-14 px-4 py-2 bg-white text-white text-opacity-60 bg-opacity-[0.06] overflow-hidden inline-block opacity-0 transition-opacity duration-500">Copied
+                        text</span>
+                    <pre class="optional-sizes-code w-full rounded-md text-sm z-50 bg-red-500">
+                        <code class="language-html rounded-md shadow-md">
+&lt;link href=&quot;https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css&quot; rel=&quot;stylesheet&quot;&gt;
+                        </code>
+                    </pre>
+                </div>
+            </div>
+        </section>
+
+    </div>
+    <!-- highlight js  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <!-- JavaScript for Interactivity -->
+    <script>
+        $(document).ready(function () {
+            // Load content dynamically based on the clicked header link
+            $(".header-link").on("click", function (e) {
+                e.preventDefault();
+                const target = $(this).attr("href").substring(1);
+
+                // Update active link styles
+                $(".header-link").removeClass("active-header");
+                $(this).addClass("active-header");
+
+                // Load content for the selected section
+                const content = {
+
+                    "introduction": `<div>
+                        <h2 class="text-[40px] text-[#232323] font-medium mb-5">Introduction</h2>
+        <p class="text-[#232323] text-[14px]">Welcome to the documentation for DSS Business Website, a versatile platform designed to empower businesses in creating professional websites with ease. Whether you are a small startup, a growing enterprise, or an established corporation, this software provides everything you need to establish a strong online presence.</p>
+        <h3 class="text-[24px] text-[#232323] font-medium mt-5">What This Software Does</h3>
+        <p class="text-[#232323] text-[14px]">DSS Business Website enables users to build fully functional business websites effortlessly. It comes equipped with intuitive tools and customizable templates, allowing you to craft websites that suit your unique brand and business needs. With this software, you can create dynamic, engaging, and professional-looking websites without requiring advanced technical expertise.</p>
+        <h3 class="text-[24px] text-[#232323] font-medium mt-5">Key Features</h3>
+        <ul class="pl-10 list-decimal text-[14px] text-[#232323] space-y-1">
+            <li><strong>Pre-Designed Sections and Pages</strong>: Build your website with ready-to-use templates for essential pages like:
+                <ul class="pl-10 list-disc py-2">
+                    <li><strong>About Us</strong>: Share your company’s story, mission, and values.</li>
+                    <li><strong>Contact Us</strong>: Provide your audience with a way to get in touch.</li>
+                    <li><strong>Employee Profiles</strong>: Showcase your team members and their roles.</li>
+                    <li><strong>Services</strong>: Highlight the services you offer with detailed descriptions.</li>
+                    <li><strong>Blog</strong>: Share articles, updates, and insights to engage your audience.</li>
+                    <li><strong>Gallery</strong>: Display images of your work, events, or products.</li>
+                </ul>
+            </li>
+            <li><strong>User-Friendly Interface</strong>: A drag-and-drop builder and straightforward content management system make it easy for anyone to use.</li>
+            <li><strong>Customizability</strong>: Personalize your website with color schemes, fonts, layouts, and more to reflect your brand identity.</li>
+            <li><strong>Responsive Design</strong>: All websites built with this software are optimized for viewing on desktops, tablets, and mobile devices.</li>
+            <li><strong>SEO and Analytics Tools</strong>: Enhance your website’s visibility on search engines and track performance with built-in tools.</li>
+        </ul>
+
+    
+
+        <h3 class="text-[24px] text-[#232323] font-medium mt-5">Target Audience</h3>
+        <p class="text-[#232323] text-[14px] mt-2"><strong>This software is designed for:</strong></p>
+        <ul class="pl-10 list-decimal text-[14px] text-[#232323] space-y-1 mb-2">
+            <li>Entrepreneurs and small business owners looking to establish their first website.</li>
+            <li>Agencies and freelancers creating websites for clients.</li>
+            <li>Medium to large enterprises aiming to build or revamp their online presence.</li>
+            <li>Anyone seeking an all-in-one solution to build a professional business website.</li>
+        </ul>
+
+        <p class="text-[#232323] text-[14px] mt-4">By using <strong>DDSS Business Website</strong>, you can focus on growing your business while we take care of providing you with the tools needed to make a lasting impression online.</p>
+    
+                    `,
+                    "features": `
+                       <main>
+            <h2 class="text-[40px] text-[#232323] font-medium mb-5">Prerequisites</h2>
+            <ul class="pl-10 list-disc text-[14px] text-[#232323] space-y-1">
+                <li>A code editor (e.g., Visual Studio Code, Sublime Text).</li>
+                <li>A web browser (e.g., Chrome, Firefox).</li>
+                <li>Basic knowledge of HTML and CSS.</li>
+            </ul>
+    
+            <h3 class="text-[24px] text-[#232323] font-medium mt-5">Step 1: Download the Source Code</h3>
+            <p class="text-[#232323] text-[14px] mt-2">Download the project files from the Theme Forest:</p>
+
+    
+            <h2 class="text-[24px] text-[#232323] font-medium mt-5">Step 2: Open the Project</h2>
+            <p class="text-[#232323] text-[14px] mt-2">Navigate to the project folder and open the <code>index.html</code> file in your code editor.</p>
+    
+            <h2 class="text-[24px] text-[#232323] font-medium mt-5">Step 3: Verify Tailwind CSS</h2>
+            <p class="text-[#232323] text-[14px] mt-2">The project uses Tailwind CSS via a CDN link. Ensure the following line is present in the <code>&lt;head&gt;</code> section of your <code>index.html</code>:</p>
+            <div class="code-container relative">
+                    <button class="copy-code-btn absolute top-6 right-2 px-4 py-2 bg-white text-white text-opacity-60 bg-opacity-[0.06]"><span><i class="fa-regular fa-copy"></i></span></button>
+                    <span class="copy-message absolute top-6 right-14 px-4 py-2 bg-white text-white text-opacity-60 bg-opacity-[0.06] overflow-hidden inline-block opacity-0 transition-opacity duration-500">Copied text</span>
+                    <pre
+                        class="optional-sizes-code w-full rounded-md text-sm z-50">
+                        <code class="language-html rounded-md shadow-md">
+&lt;link href=&quot;https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css&quot; rel=&quot;stylesheet&quot;&gt;
+                        </code>
+                    </pre>
+                </div>
+            <p class="text-[#232323] text-[14px] mt-2">This link ensures Tailwind CSS is loaded and ready to style your website.</p>
+    
+            <h2 class="text-[24px] text-[#232323] font-medium mt-5">Step 4: Verify jQuery</h2>
+            <p class="text-[#232323] text-[14px] mt-2">The project also includes jQuery for dynamic interactions. Verify the following script tag is included at the end of the <code>&lt;body&gt;</code> section:</p>
+            <div class="code-container relative">
+                    <button class="copy-code-btn absolute top-6 right-2 px-4 py-2 bg-white text-white text-opacity-60 bg-opacity-[0.06]"><span><i class="fa-regular fa-copy"></i></span></button>
+                    <span class="copy-message absolute top-6 right-14 px-4 py-2 bg-white text-white text-opacity-60 bg-opacity-[0.06] overflow-hidden inline-block opacity-0 transition-opacity duration-500">Copied text</span>
+                    <pre
+                        class="optional-sizes-code w-full rounded-md text-sm z-50">
+                        <code class="language-html rounded-md shadow-md">
+&lt;script src="https://code.jquery.com/jquery-3.6.0.min.js"&gt;&lt;/script&gt;
+                        </code>
+                    </pre>
+                </div>
+            <p class="text-[#232323] text-[14px] mt-2">This link loads the jQuery library into your project.</p>
+    
+            <h2 class="text-[24px] text-[#232323] font-medium mt-5">Step 5: Open the Project in a Browser</h2>
+            <p class="text-[#232323] text-[14px] mt-2">Use any browser to view the website:</p>
+            <ul class="pl-10 list-disc text-[14px] text-[#232323] space-y-1">
+                <li>Open the <code>index.html</code> file directly in the browser.</li>
+                <li>Alternatively, use a local server for development:</li>
+            </ul>
+            <div class="code-container relative">
+                    <button class="copy-code-btn absolute top-6 right-2 px-4 py-2 bg-white text-white text-opacity-60 bg-opacity-[0.06]"><span><i class="fa-regular fa-copy"></i></span></button>
+                    <span class="copy-message absolute top-6 right-14 px-4 py-2 bg-white text-white text-opacity-60 bg-opacity-[0.06] overflow-hidden inline-block opacity-0 transition-opacity duration-500">Copied text</span>
+                    <pre
+                        class="optional-sizes-code w-full rounded-md text-sm z-50">
+                        <code class="language-html rounded-md shadow-md">
+# If you have Python installed, run:
+    python -m http.server
+                        </code>
+                    </pre>
+                </div>
+    
+            <h2 class="text-[24px] text-[#232323] font-medium mt-5">Step 6: Customization</h2>
+            <p class="text-[#232323] text-[14px] mt-2">To modify or add features:</p>
+            <ul class="pl-10 list-disc text-[14px] text-[#232323] space-y-1">
+                <li>Edit the HTML files to update content and structure.</li>
+                <li>Customize the design by adding or updating Tailwind CSS classes in your HTML elements.</li>
+                <li>Enhance interactivity by adding custom JavaScript/jQuery code in the provided <code>script.js</code> file or directly in your HTML.</li>
+            </ul>
+    
+        </main>
+                    `,
+
+                };
+
+                // Update the content area
+                $("#content-area").html(content[target]);
+                // Apply Highlight.js to the new code block
+
+                $('.code-container pre code').each(function (i, block) {
+                    hljs.highlightElement(block);
+                });
+            });
+        });
+        hljs.highlightAll();
+        $(document).on('click','.copy-code-btn',function () {
+            let text = $(this).closest('.code-container').find('code').text();
+            navigator.clipboard.writeText(text);
+
+            $(this).closest('.code-container').find('.copy-message').addClass('opacity-100').removeClass('opacity-0');
+            setTimeout(() => {
+                $(this).closest('.code-container').find('.copy-message').removeClass('opacity-100').addClass('opacity-0');
+            }, 1000);
+        })
+    </script>
+
+</body>
+
+</html>

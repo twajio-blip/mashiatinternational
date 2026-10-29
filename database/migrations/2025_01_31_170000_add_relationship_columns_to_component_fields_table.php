@@ -1,0 +1,30 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('component_fields', function (Blueprint $table) {
+            $table->string('relationship_type')->nullable()->after('type');
+            $table->string('related_component')->nullable()->after('relationship_type');
+            $table->string('display_column')->nullable()->after('related_component');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('component_fields', function (Blueprint $table) {
+            $table->dropColumn(['relationship_type', 'related_component', 'display_column']);
+        });
+    }
+};
