@@ -74,12 +74,11 @@
 </x-backend.model>
 
 <script>
-    // Toggle connected-component data source panel.
-    // Own field/database creation stays visible so a component can be
-    // connected to another component AND still define its own fields.
+    // Toggle between own fields and connected component
     $(document).on('change', '#component-connect', function() {
         const checked = $(this).is(':checked');
         const root = $(this).closest('.overflow-y-auto');
+        root.find('.component-field, .database-field').toggle(!checked);
         root.find('.connect-component').toggle(checked);
     });
 

@@ -8,10 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class PageComponentStatus extends  BaseModel
 {
     use HasFactory;
-    protected $guarded = [];
-
-    protected $casts = [
-        'relationship_config' => 'array',
-        'advanced_relationship_config' => 'array',
-    ];
+protected $guarded=[];
 }

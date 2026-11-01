@@ -1,237 +1,193 @@
 @props(['data' => [], 'general' => null])
-
 @php
-$general = $general ?? \Illuminate\Support\Facades\Cache::rememberForever('general_settings', fn () => \App\Models\General::first());
+    $widgets = \App\Models\widget::with('children')
+        ->whereNull('parent_id')
+        ->orderBy('position')
+        ->get();
 
-$widgets = \App\Models\widget::with('children')
-->whereNull('parent_id')
-->orderBy('position')
-->get();
-
-$email = $general?->email ?? 'info@mashiatintl.com';
-$phone = $general?->contact ?? '+880 1711 000 111';
-$websiteName = $general?->website_name ?? 'Mashiat International';
-$websiteLabel = $general?->website_label ?? 'Financial Documentation & Consultancy';
-$headerLogo = $general?->header ?? null;
-$headerLogoUrl = $headerLogo ? asset('images/' . $headerLogo) : null;
-$phoneHref = preg_replace('/[^0-9+]/', '', $phone);
-$hours = $general?->office_hours ?? 'Saturday - Thursday, 9:30 AM - 6:30 PM';
-$whatsappPhone = $general?->whatsapp_number ?? $phone;
-$whatsappNumber = preg_replace('/[^0-9]/', '', $whatsappPhone);
-
-$fallbackWidgets = collect([
-(object) ['id' => 'home', 'name' => 'Home', 'link' => '/', 'children' => collect()],
-(object) ['id' => 'about', 'name' => 'About Us', 'link' => '/about-us', 'children' => collect()],
-(object) ['id' => 'student-visa', 'name' => 'Student Visa', 'link' => '/student-visa', 'children' => collect()],
-(object) ['id' => 'services', 'name' => 'Services', 'link' => '/services', 'children' => collect()],
-(object) ['id' => 'team', 'name' => 'Our Team', 'link' => '/team', 'children' => collect()],
-(object) ['id' => 'contact', 'name' => 'Contact', 'link' => '/contact', 'children' => collect()],
-]);
-
-$menuItems = $widgets->isNotEmpty() ? $widgets : $fallbackWidgets;
-
-$isActiveLink = function ($link, $children = null) {
-$path = trim((string) $link, '/');
-$active = $path === '' ? request()->is('/') : request()->is($path) || request()->is($path . '/*');
-
-if (!$active && $children) {
-$active = $children->contains(function ($child) {
-$childPath = trim((string) $child->link, '/');
-return $childPath !== '' && (request()->is($childPath) || request()->is($childPath . '/*'));
-});
-}
-
-return $active;
-};
+    $email = $general->email ?? 'info@rarlift.com';
+    $phone = $general->contact ?? '+880 1234 567 890';
+    $phoneHref = preg_replace('/[^0-9+]/', '', $phone);
+    $hours = $general->office_hours ?? 'Saturday — Thursday, 9:30 AM — 6:30 PM';
 @endphp
 
-<header x-data="{ mobileOpen: false, mobileActive: null }" class="fixed inset-x-0 top-0 z-50">
-    <div class="hidden bg-header text-white xl:block">
-        <div class="container flex h-11 items-center justify-between text-[13px]">
-            <div class="flex items-center gap-6">
-                <a href="tel:{{ $phoneHref }}" class="inline-flex items-center gap-2 transition-colors hover:text-status">
-                    <i class="fa-solid fa-phone text-status"></i>
-                    <span>{{ $phone }}</span>
-                </a>
-                <a href="mailto:{{ $email }}" class="inline-flex items-center gap-2 transition-colors hover:text-status">
-                    <i class="fa-regular fa-envelope text-status"></i>
-                    <span>{{ $email }}</span>
-                </a>
-                <span class="inline-flex items-center gap-2 text-white/80">
-                    <i class="fa-regular fa-clock text-status"></i>
-                    <span>{{ $hours }}</span>
-                </span>
-            </div>
+<div x-data="{ isScrolled: false, isMobileMenuOpen: false, mobileActiveDropdown: null }"
+    x-init="window.addEventListener('scroll', () => { isScrolled = window.scrollY > 50 })" class="relative">
 
-            <a href="https://wa.me/{{ $whatsappNumber }}" target="_blank" rel="noopener"
-                class="inline-flex items-center gap-2 font-semibold text-status transition-colors hover:text-white">
-                <i class="fa-brands fa-whatsapp"></i>
-                <span>WhatsApp</span>
-            </a>
-        </div>
-    </div>
+    <header class="w-full fixed top-0 left-0 right-0 z-50 flex flex-col font-sans">
 
-    <div class="border-b border-border-color bg-white">
-        <div class="container flex h-18.5 items-center justify-between sm:gap-6">
-            <a href="{{ url('/') }}" class="flex min-w-0 items-center gap-3">
-                @if ($headerLogoUrl)
-                <span class="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border-color bg-white">
-                    <img src="{{ $headerLogoUrl }}" alt="{{ $websiteName }} logo" class="h-full w-full object-contain">
-                </span>
-                @else
-                <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-header font-display text-[18px] font-bold text-status">
-                    {{ collect(explode(' ', $websiteName))->filter()->map(fn ($word) => mb_substr($word, 0, 1))->take(2)->implode('') ?: 'MI' }}
-                </span>
-                @endif
-                <span class="min-w-0">
-                    <span class="block font-display text-[16px] sm:text-[18px] font-bold leading-tight text-header">
-                        {{ $websiteName }}
-                    </span>
-                    <span class="block text-[12px] font-medium leading-tight text-muted">
-                        {{ $websiteLabel }}
-                    </span>
-                </span>
-            </a>
-
-            <nav class="hidden items-center gap-1 xl:flex" aria-label="Main navigation">
-                @foreach ($menuItems as $widget)
-                @php
-                $children = $widget->children ?? collect();
-                $hasChildren = $children->count() > 0;
-                $isActive = $isActiveLink($widget->link, $children);
-                @endphp
-
-                <div class="group relative">
-                    <a href="{{ $hasChildren ? '#' : url($widget->link ?: '/') }}"
-                        class="inline-flex h-20 items-center gap-1.5 px-3 text-[14px] font-semibold transition-colors {{ $isActive ? 'text-tag' : 'text-header hover:text-tag' }}">
-                        <span>{{ $widget->name }}</span>
-                        @if ($hasChildren)
-                        <i class="fa-solid fa-chevron-down text-[10px] transition-transform duration-200 group-hover:rotate-180"></i>
-                        @endif
+        {{-- 1. Top Contact Bar --}}
+        <div class="hidden xl:block bg-background text-white transition-all duration-500 ease-in-out overflow-hidden"
+            :class="isScrolled ? 'h-0' : 'h-11'">
+            <div class="container h-full flex items-center justify-between text-sm">
+                <div class="flex items-center space-x-6">
+                    <a href="tel:{{ $phoneHref }}"
+                        class="flex items-center gap-2 whitespace-nowrap hover:text-brand-red transition-colors">
+                        <i class="fa-solid fa-phone text-brand-red"></i>
+                        <span>{{ $phone }}</span>
                     </a>
+                    <a href="mailto:{{ $email }}"
+                        class="flex items-center gap-2 whitespace-nowrap hover:text-brand-red transition-colors">
+                        <i class="fa-solid fa-envelope text-brand-red"></i>
+                        <span>{{ $email }}</span>
+                    </a>
+                </div>
+                <div class="flex items-center gap-2 text-gray-300 whitespace-nowrap">
+                    <i class="fa-regular fa-clock text-brand-red"></i>
+                    <span>{{ $hours }}</span>
+                </div>
+            </div>
+        </div>
 
-                    @if ($hasChildren)
-                    <div class="invisible absolute left-0 top-full w-64 translate-y-2 rounded-lg border border-border-color bg-white py-2 opacity-0 shadow-card transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-                        @foreach ($children as $child)
-                        @php
-                        $childPath = trim((string) $child->link, '/');
-                        $childActive = $childPath !== '' && (request()->is($childPath) || request()->is($childPath . '/*'));
-                        @endphp
-                        <a href="{{ url($child->link) }}"
-                            class="block px-4 py-2.5 text-[14px] font-medium transition-colors {{ $childActive ? 'bg-background-3 text-tag' : 'text-header hover:bg-background-3 hover:text-tag' }}">
-                            {{ $child->name }}
-                        </a>
+        {{-- 2. Main Navigation --}}
+        <div class="bg-white shadow-md transition-all duration-500 ease-in-out h-18.5">
+            <div class="container h-full flex items-center justify-between">
+
+                {{-- Logo with Smooth Shrink --}}
+                <a href="{{ url('/') }}" class="flex items-center h-full py-2">
+                    <img src="{{ !empty($general?->header) ? asset('images/' . $general->header) : asset('image.png') }}"
+                        alt="Logo"
+                        class="w-auto object-contain transition-all duration-500 ease-in-out will-change-transform"
+                        :class="isScrolled ? 'h-10 lg:h-12' : 'h-12 lg:h-16'">
+                </a>
+
+                <nav class="flex items-center gap-4 h-full">
+                    <div class="hidden lg:flex items-center h-full space-x-1 xl:space-x-2">
+                        @foreach ($widgets as $widget)
+                            @php 
+                                                            $hasChildren = $widget->children && $widget->children->count() > 0;
+                                $currentPath = request()->path();
+                                $checkLink = trim($widget->link, '/') === '' ? '/' : trim($widget->link, '/');
+                                $isActive = request()->is($checkLink) ||
+                                    ($hasChildren && $widget->children->pluck('link')->map(fn($l) => trim($l, '/'))->contains($currentPath));
+                            @endphp
+
+                            <div class="relative group h-full flex items-center" x-data="{ open: false }"
+                                @mouseenter="open = true" @mouseleave="open = false">
+
+                                <a href="{{ $hasChildren ? 'javascript:void(0)' : url($widget->link) }}"
+                                    class="px-2 py-2 rounded-md text-sm text-nowrap font-medium transition-colors relative flex items-center {{ $isActive ? 'text-brand-red' : 'text-brand-charcoal hover:text-brand-red' }}">
+
+                                    {{ $widget->name }}
+
+                                    @if($hasChildren)
+                                        <i class="fa-solid fa-chevron-down text-[10px] ml-1.5 transition-transform duration-200"
+                                            :class="open ? 'rotate-180' : ''"></i>
+                                    @endif
+
+                                    <span
+                                        class="absolute bottom-0 left-0 w-full h-0.5 bg-brand-red transform origin-left transition-transform duration-300 {{ $isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}}"></span>
+                                </a>
+
+                                @if($hasChildren)
+                                    <div x-show="open" x-transition:enter="transition ease-out duration-200"
+                                        x-transition:enter-start="opacity-0 translate-y-2"
+                                        x-transition:enter-end="opacity-100 translate-y-0"
+                                        x-transition:leave="transition ease-in duration-150"
+                                        class="absolute top-full left-0 w-64 bg-white shadow-2xl rounded-xl py-3 border border-gray-100 z-[60]"
+                                        x-cloak>
+                                        @foreach ($widget->children as $child)
+                                            <a href="{{ url($child->link) }}" @click="open = false"
+                                                class="block px-5 py-2.5 text-sm transition-colors {{ request()->is(trim($child->link, '/')) ? 'text-brand-red bg-brand-light/50' : 'text-brand-charcoal hover:bg-brand-light hover:text-brand-red' }}">
+                                                {{ $child->name }}
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
                         @endforeach
                     </div>
-                    @endif
-                </div>
-                @endforeach
-            </nav>
 
-            <div class="flex items-center gap-3">
-                <a href="{{ url('/contact') }}"
-                    class="hidden items-center justify-center rounded-lg bg-status px-4 py-2 text-[14px] font-semibold text-header shadow-card transition-colors hover:bg-[#b8944b] md:inline-flex">
-                    Book Consultation
-                </a>
-
-                <button type="button" @click="mobileOpen = true"
-                    class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border-color bg-white text-header transition-colors hover:border-status hover:text-tag xl:hidden"
-                    aria-label="Open menu">
-                    <i class="fa-solid fa-bars text-[18px]"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div x-show="mobileOpen" x-transition.opacity @click="mobileOpen = false"
-        class="fixed inset-0 z-40 bg-header/70 backdrop-blur-sm xl:hidden" x-cloak></div>
-
-    <aside x-show="mobileOpen"
-        x-transition:enter="transition duration-300 ease-out"
-        x-transition:enter-start="-translate-x-full"
-        x-transition:enter-end="translate-x-0"
-        x-transition:leave="transition duration-200 ease-in"
-        x-transition:leave-start="translate-x-0"
-        x-transition:leave-end="-translate-x-full"
-        class="fixed inset-y-0 left-0 z-50 w-[min(86vw,340px)] overflow-y-auto bg-white shadow-card xl:hidden"
-        x-cloak>
-        <div class="flex items-center justify-between border-b border-border-color bg-header p-4 text-white">
-            <a href="{{ url('/') }}" class="flex min-w-0 items-center gap-2" @click="mobileOpen = false">
-                @if ($headerLogoUrl)
-                <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white">
-                    <img src="{{ $headerLogoUrl }}" alt="{{ $websiteName }} logo" class="h-full w-full object-contain">
-                </span>
-                @endif
-                <span class="min-w-0">
-                    <span class="block truncate font-display text-[17px] font-bold">{{ $websiteName }}</span>
-                    <span class="block truncate text-[11px] font-medium text-white/70">{{ $websiteLabel }}</span>
-                </span>
-            </a>
-            <button type="button" @click="mobileOpen = false"
-                class="flex h-10 w-10 items-center justify-center rounded-lg text-white transition-colors hover:bg-white/10"
-                aria-label="Close menu">
-                <i class="fa-solid fa-xmark text-[20px]"></i>
-            </button>
-        </div>
-
-        <div class="space-y-1 p-4">
-            @foreach ($menuItems as $widget)
-            @php
-            $children = $widget->children ?? collect();
-            $hasChildren = $children->count() > 0;
-            $isActive = $isActiveLink($widget->link, $children);
-            $mobileKey = (string) $widget->id;
-            @endphp
-
-            <div class="border-b border-border-color/70 pb-1 last:border-b-0">
-                @if ($hasChildren)
-                <button type="button"
-                    @click="mobileActive === '{{ $mobileKey }}' ? mobileActive = null : mobileActive = '{{ $mobileKey }}'"
-                    class="flex w-full items-center justify-between gap-3 py-3 text-left text-[15px] font-semibold {{ $isActive ? 'text-tag' : 'text-header' }}">
-                    <span>{{ $widget->name }}</span>
-                    <i class="fa-solid fa-chevron-down text-[11px] transition-transform duration-200"
-                        :class="mobileActive === '{{ $mobileKey }}' ? 'rotate-180 text-status' : ''"></i>
-                </button>
-
-                <div x-show="mobileActive === '{{ $mobileKey }}'" x-cloak
-                    class="mb-2 rounded-lg bg-background-3 px-3 py-2">
-                    @foreach ($children as $child)
-                    <a href="{{ url($child->link) }}" @click="mobileOpen = false"
-                        class="block rounded-md px-3 py-2 text-[14px] font-medium text-muted transition-colors hover:bg-white hover:text-tag">
-                        {{ $child->name }}
+                    <a href="{{ url('/contact') }}"
+                        class="hidden sm:flex ml-4 px-6 py-2.5 bg-brand-red text-white text-nowrap font-medium rounded-lg hover:bg-brand-redHover transition-colors shadow-md items-center">
+                        Get Quote <i class="fa-solid fa-chevron-right text-xs ml-2"></i>
                     </a>
-                    @endforeach
-                </div>
-                @else
-                <a href="{{ url($widget->link ?: '/') }}" @click="mobileOpen = false"
-                    class="block py-3 text-[15px] font-semibold transition-colors {{ $isActive ? 'text-tag' : 'text-header hover:text-tag' }}">
-                    {{ $widget->name }}
-                </a>
-                @endif
+
+                    <button @click="isMobileMenuOpen = !isMobileMenuOpen"
+                        class="lg:hidden p-2 text-brand-charcoal text-2xl">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </nav>
             </div>
-            @endforeach
         </div>
 
-        <div class="space-y-3 border-t border-border-color p-4">
-            <a href="{{ url('/contact') }}"
-                class="flex min-h-11 w-full items-center justify-center rounded-lg bg-status px-5 py-2.5 text-[14px] font-semibold text-header shadow-card transition-colors hover:bg-[#b8944b]">
-                Book Consultation
-            </a>
-            @if ($whatsappNumber)
-            <a href="https://wa.me/{{ $whatsappNumber }}" target="_blank" rel="noopener"
-                class="flex items-center gap-2 text-[14px] font-semibold text-header">
-                <i class="fa-brands fa-whatsapp text-status"></i>
-                <span>{{ $whatsappPhone }}</span>
-            </a>
-            @endif
-            <a href="tel:{{ $phoneHref }}" class="flex items-center gap-2 text-[14px] font-semibold text-header">
-                <i class="fa-solid fa-phone text-status"></i>
-                <span>{{ $phone }}</span>
-            </a>
-            <a href="mailto:{{ $email }}" class="flex items-center gap-2 text-[14px] font-semibold text-header">
-                <i class="fa-regular fa-envelope text-status"></i>
-                <span>{{ $email }}</span>
-            </a>
+        {{-- 3. Mobile Menu Overlay --}}
+        <div x-show="isMobileMenuOpen" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0" @click="isMobileMenuOpen = false"
+            class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden" x-cloak>
         </div>
-    </aside>
-</header>
+
+        {{-- Side Menu Content --}}
+        <div x-show="isMobileMenuOpen" x-transition:enter="transition ease-out duration-300 transform"
+            x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
+            x-transition:leave="transition ease-in duration-300 transform" x-transition:leave-start="translate-x-0"
+            x-transition:leave-end="-translate-x-full" style="width: clamp(200px, 70vw, 250px);"
+            class="fixed top-0 left-0 h-screen bg-white shadow-2xl z-50 overflow-y-auto lg:hidden" x-cloak>
+
+            {{-- Header inside Mobile Menu (Close button & Logo) --}}
+            <div class="flex items-center justify-between p-4 border-b border-gray-100 bg-brand-charcoal">
+                <span class="text-white font-bold tracking-tight">MENU</span>
+                <button @click="isMobileMenuOpen = false" class="text-white hover:text-brand-red p-2 transition-colors">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+
+            <div class="flex flex-col px-4 py-6 space-y-1">
+                @foreach ($widgets as $widget)
+                    @php 
+                                            $hasChildren = $widget->children && $widget->children->count() > 0;
+                        $checkLink = trim($widget->link, '/') === '' ? '/' : trim($widget->link, '/');
+                        $isActive = request()->is($checkLink);
+                    @endphp
+
+                    <div class="border-b border-gray-50 last:border-0">
+                        <div class="flex items-center justify-between py-3">
+                            @if($hasChildren)
+                                <button
+                                    @click="mobileActiveDropdown === '{{ $widget->id }}' ? mobileActiveDropdown = null : mobileActiveDropdown = '{{ $widget->id }}'"
+                                    class="flex items-center justify-between w-full text-left group">
+                                    <span
+                                        class="text-base font-semibold {{ $isActive ? 'text-brand-red' : 'text-brand-charcoal group-hover:text-brand-red' }}">
+                                        {{ $widget->name }}
+                                    </span>
+                                    <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300"
+                                        :class="mobileActiveDropdown === '{{ $widget->id }}' ? 'rotate-180 text-brand-red' : 'text-gray-400'"></i>
+                                </button>
+                            @else
+                                <a href="{{ url($widget->link) }}"
+                                    class="text-base font-semibold {{ $isActive ? 'text-brand-red' : 'text-brand-charcoal hover:text-brand-red' }}">
+                                    {{ $widget->name }}
+                                </a>
+                            @endif
+                        </div>
+
+                        @if($hasChildren)
+                            <div x-show="mobileActiveDropdown === '{{ $widget->id }}'" x-collapse x-cloak>
+                                <div
+                                    class="flex flex-col pl-4 pb-4 space-y-2 bg-gray-50 rounded-lg mb-2 mt-1 border-l-2 border-brand-red/20">
+                                    @foreach ($widget->children as $child)
+                                        <a href="{{ url($child->link) }}"
+                                            @click="isMobileMenuOpen = false; mobileActiveDropdown = null"
+                                            class="text-left py-2 px-3 text-sm transition-all rounded-md {{ request()->is(trim($child->link, '/')) ? 'text-brand-red bg-white shadow-sm font-semibold' : 'text-gray-600 hover:text-brand-red hover:bg-white' }}">
+                                            {{ $child->name }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+
+            {{-- Optional Footer for Mobile Menu --}}
+            <div class="p-6 mt-4 border-t border-gray-100">
+                <a href="{{ url('/contact') }}"
+                    class="flex justify-center items-center w-full bg-brand-red text-white py-3 rounded-xl font-bold shadow-lg shadow-brand-red/20">
+                    GET A QUOTE
+                </a>
+            </div>
+        </div>
+    </header>
+</div>

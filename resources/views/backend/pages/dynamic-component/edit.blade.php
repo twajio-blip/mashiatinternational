@@ -298,7 +298,7 @@
                 </div>
                 @if($groupIsMultiple)
                 <div class="mt-3 order-last add-more-wrapper">
-                    <button type="button" class="add-more-group-instance py-2.5 px-5 text-sm font-semibold rounded-xl bg-skin-backend-accent bg-opacity-20 text-black hover:bg-opacity-30" data-schema-group="{{ $schemaGroup }}" data-row-id="{{ $rowId }}">
+                    <button type="button" class="add-more-group-instance py-2.5 px-5 text-sm font-semibold rounded-xl bg-skin-backend-accent bg-opacity-20 text-skin-backend-accent hover:bg-opacity-30" data-schema-group="{{ $schemaGroup }}" data-row-id="{{ $rowId }}">
                         <i class="fa-solid fa-plus mr-1"></i> Add more {{ $groupName }}
                     </button>
                 </div>
@@ -509,7 +509,7 @@ $(function() {
         // Re-initialize SunEditor on newly appended textareas
         if (typeof SUNEDITOR !== 'undefined') {
             var sunEditorOptions = {
-                defaultStyle: 'font-family: Arial, sans-serif; font-size: 14px;',
+                defaultStyle: 'font-family: Inter, system-ui, sans-serif; font-size: 14px;',
                 buttonList: [
                     ['undo', 'redo', 'font', 'fontSize', 'formatBlock'],
                     ['bold', 'underline', 'italic', 'strike', 'subscript', 'superscript', 'removeFormat'],
@@ -520,7 +520,7 @@ $(function() {
                 ],
                 table: { maxWidth: '100%', maxHeight: '300px', resize: true },
                 imageUploadSizeLimit: 2 * 1024 * 1024,
-                font: ['Arial', 'Comic Sans MS', 'Courier New', 'Georgia', 'Tahoma', 'Trebuchet MS', 'Verdana'],
+                font: ['Inter', 'Arial', 'Comic Sans MS', 'Courier New', 'Georgia', 'Tahoma', 'Trebuchet MS', 'Verdana'],
                 fontSize: ['8', '10', '12', '14', '16', '18', '20', '24', '28', '32', '36', '40', '46', '52', '58', '64', '70', '76', '82', '88', '94', '100', '106', '112', '118', '120'],
                 mode: 'classic',
                 height: '200px',

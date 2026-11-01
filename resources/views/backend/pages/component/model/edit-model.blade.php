@@ -67,15 +67,15 @@
 </x-backend.model>
 
 <script>
-    // Toggle connected-component data source panel on edit.
-    // Own field/database creation stays visible so a component can be
-    // connected to another component AND still define its own fields.
+    // Toggle between own fields and connected component on edit
     $(document).on('change', '#component-connect-edit', function() {
         const checked = $(this).is(':checked');
         const root = $(this).closest('.overflow-y-auto');
         if (checked) {
+            root.find('.component-field, .database-field').addClass('hidden');
             root.find('.connect-component-edit').removeClass('hidden');
         } else {
+            root.find('.component-field, .database-field').removeClass('hidden');
             root.find('.connect-component-edit').addClass('hidden');
         }
     });
@@ -98,11 +98,11 @@
         const $root = $('#component-edit').find('.overflow-y-auto').first();
         $('#component-edit').find('#component-connect-edit').prop('checked', connected);
         $('#data_source_component_id_edit').val(dataSourceId);
-        // Own field/database creation stays visible even when connected,
-        // so the admin can still add fields on a connected component.
         if (connected) {
+            $root.find('.component-field, .database-field').addClass('hidden');
             $root.find('.connect-component-edit').removeClass('hidden');
         } else {
+            $root.find('.component-field, .database-field').removeClass('hidden');
             $root.find('.connect-component-edit').addClass('hidden');
         }
         // build related data HTML (used for both database + custom)
@@ -165,7 +165,7 @@
             ${relatedDataHtml}
             `)
 
-        } else if (data.set_from == 'custom') {
+        } else {
             $('#component-edit').find('#custom').prop('checked', true);
             $('#component-edit').find('#database').prop('checked', false);
             sub_fileds.push(
@@ -173,9 +173,6 @@
             <x-backend.input-select id="component" :values="input()" class='sub-component' :placeholder="'Select one'" selected='' />
             ${relatedDataHtml}`
             )
-        } else {
-            $('#component-edit').find('#custom').prop('checked', false);
-            $('#component-edit').find('#database').prop('checked', false);
         }
         // If component is connected, also show related-data block inside connect-component area
         if (connected) {
@@ -354,58 +351,11 @@
             </div>
             ${relatedDataHtml}`;
             $('#component-edit').find('.add-database').html(customHtml);
-            if (data.set_from != 'custom') {
-                $('#component-edit').find('.add-database').addClass('hidden');
-            } else {
-                $('#component-edit').find('.add-database').removeClass('hidden');
-            }
         }
 
         let route = "{{ route('component.update', ':id') }}".replace(':id', data.id);
         $('#component-edit').attr('action', route)
     })
-
-    $(document).on('change', '#component-edit #database', function() {
-        const root = $('#component-edit');
-        if ($(this).is(':checked')) {
-            root.find('#custom').prop('checked', false);
-            root.find('.add-database').removeClass('hidden');
-            root.find('.add-database').html(`
-                <x-backend.input-label :value="'Database name'" for="database-name" />
-                <x-backend.input-field type="text" name="database" id='database-name'
-                    placeholder="Enter Database name" required />
-                <x-backend.input-label :value="'Relational Table'" for="relational-table" />
-                <x-backend.input-field type="text" name="relational_table" id='relational-table'
-                    placeholder="Enter Relational Table " />
-            `);
-        } else {
-            root.find('.add-database').addClass('hidden');
-        }
-    });
-
-    $(document).on('change', '#component-edit #custom', function() {
-        const root = $('#component-edit');
-        if ($(this).is(':checked')) {
-            root.find('#database').prop('checked', false);
-            root.find('.add-database').removeClass('hidden');
-            if (!root.find('.custom-groups-container').length) {
-                window.schemaGroupCounter = 1;
-                root.find('.add-database').html(`
-                    <div class="custom-groups-container space-y-4">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-sm font-medium text-skin-backend-text-base">Field Groups</span>
-                            <button type="button" class="add-group-btn py-2 px-4 text-xs font-semibold rounded-lg bg-skin-backend-accent bg-opacity-20 text-skin-backend-accent hover:bg-opacity-30 transition-colors">
-                                <i class="fa-solid fa-plus mr-1"></i> Add Group
-                            </button>
-                        </div>
-                        <div class="group-blocks">${renderEditGroupBlock(1)}</div>
-                    </div>
-                `);
-            }
-        } else {
-            root.find('.add-database').addClass('hidden');
-        }
-    });
 
     $(document).on('click', '.remove-db', function(e) {
         e.preventDefault();

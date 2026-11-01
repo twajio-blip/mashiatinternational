@@ -16,19 +16,24 @@ use App\Services\Pages\PagesService;
 class DynamicComponentController extends Controller
 {
     /**
-     * Get custom components that have child fields (manageable dynamically)
+     * Get components that have child fields or database tables (manageable dynamically)
      * Rule 1: Only show if has at least one non-empty row (all empty = cannot show)
      */
     public static function getManageableComponents()
     {
         $components = ComponentMaster::with('componentFiled')
-            ->where('set_from', 'custom')
-            ->whereHas('componentFiled', fn($sq) => $sq->where('group', 1))
+            ->where(function ($q) {
+                $q->whereHas('componentFiled', fn($sq) => $sq->where('group', 1))
+                    ->orWhere('set_from', 'database');
+            })
             ->orderBy('position', 'asc')
             ->orderBy('id', 'asc')
             ->get();
 
         return $components->filter(function ($comp) {
+            if ($comp->set_from === 'database' && $comp->database) {
+                return Schema::hasTable($comp->database) && DB::table($comp->database)->exists();
+            }
             return ComponentField::where('component_id', $comp->id)
                 ->whereNotNull('group')
                 // ->where(function ($q) {
@@ -44,7 +49,6 @@ class DynamicComponentController extends Controller
     public function index(string $slug)
     {
         $component = ComponentMaster::where('name', $slug)
-            ->where('set_from', 'custom')
             ->with(['componentFiled' => fn($q) => $q->where('group', 1)->orderBy('position')])
             ->firstOrFail();
 
@@ -106,9 +110,7 @@ class DynamicComponentController extends Controller
 
         $childFields = $component->componentFiled->where('group', 1);
         $tableFields = $childFields->filter(fn($f) => ($f->show_in_table ?? 1));
-        $columns = $component->set_from === 'database'
-            ? $tableFields->pluck('name')->unique()->values()
-            : $tableFields->map(fn($f) => $this->dynamicTableColumnKey($f))->values();
+        $columns = $tableFields->pluck('name')->unique()->values();
         $search = trim((string) request('search', ''));
         $perPage = 10;
 
@@ -159,7 +161,7 @@ class DynamicComponentController extends Controller
             foreach ($groups as $group) {
                 $row = (object)['id' => $group, '_group' => $group];
                 $isEmpty = true;
-                foreach ($tableFields as $field) {
+                foreach ($component->componentFiled->where('group', 1) as $field) {
                     $q = ComponentField::where('component_id', $component->id)
                         ->where('group', $group)
                         ->where('name', $field->name)
@@ -172,7 +174,7 @@ class DynamicComponentController extends Controller
                     if ($field->relationship_type && $field->related_component && $field->display_column) {
                         $val = self::getRelationshipDisplayValue($field->related_component, $field->display_column, $val);
                     }
-                    $row->{$this->dynamicTableColumnKey($field)} = $val;
+                    $row->{$field->name} = $val;
                     if ($val !== null && trim((string) $val) !== '') {
                         $isEmpty = false;
                     }
@@ -196,15 +198,6 @@ class DynamicComponentController extends Controller
         }
 
         return view('backend.pages.dynamic-component.index', $viewData);
-    }
-
-    protected function dynamicTableColumnKey($field): string
-    {
-        $schemaGroup = (int) ($field->schema_group ?? 1);
-        $schemaInstance = (int) ($field->schema_instance ?? 1);
-        $id = (int) ($field->id ?? 0);
-
-        return $field->name . '__sg' . $schemaGroup . '__si' . $schemaInstance . '__id' . $id;
     }
 
     /**
@@ -279,14 +272,11 @@ class DynamicComponentController extends Controller
         if (is_array($ids)) {
             $labels = [];
             foreach ($ids as $id) {
-                $fallbackId = is_string($id) && str_ends_with($id, ':1') ? Str::beforeLast($id, ':') : $id;
-                $labels[] = $options[$id] ?? $options[$fallbackId] ?? $id;
+                $labels[] = $options[$id] ?? $id;
             }
             return implode(', ', $labels);
         }
-        $fallbackValue = is_string($value) && str_ends_with($value, ':1') ? Str::beforeLast($value, ':') : $value;
-
-        return (string) ($options[$value] ?? $options[$fallbackValue] ?? $value);
+        return (string) ($options[$value] ?? $value);
     }
 
     /**
@@ -312,32 +302,23 @@ class DynamicComponentController extends Controller
                 return [$row->id => (string) $label];
             })->all();
         }
-        $rows = ComponentField::where('component_id', $related->id)
+        $groups = ComponentField::where('component_id', $related->id)
             ->whereNotNull('group')
-            ->where('name', $displayColumn)
+            ->where('group', '!=', 1)
             ->whereNull('page_id')
-            ->get(['group', 'schema_instance', 'value']);
-
-        $instancesByGroup = $rows
-            ->groupBy(fn ($row) => (string) $row->group)
-            ->map(fn ($groupRows) => $groupRows->pluck('schema_instance')->filter()->unique()->count());
-
+            ->pluck('group')
+            ->unique()
+            ->sort()
+            ->values();
         $options = [];
-        foreach ($rows->sortBy([['group', 'asc'], ['schema_instance', 'asc']]) as $row) {
-            $val = $row->value;
-            if ($val === null || trim((string) $val) === '') {
-                continue;
-            }
-
-            $group = (string) $row->group;
-            $schemaInstance = (int) ($row->schema_instance ?: 1);
-            $key = ($instancesByGroup[$group] ?? 0) > 1 && $schemaInstance > 1
-                ? $group . ':' . $schemaInstance
-                : $group;
-
-            $options[$key] = (string) $val;
+        foreach ($groups as $group) {
+            $val = ComponentField::where('component_id', $related->id)
+                ->where('group', $group)
+                ->where('name', $displayColumn)
+                ->whereNull('page_id')
+                ->value('value');
+            $options[$group] = (string) ($val ?? $group);
         }
-
         return $options;
     }
 
@@ -347,7 +328,6 @@ class DynamicComponentController extends Controller
     public function create(string $slug)
     {
         $component = ComponentMaster::where('name', $slug)
-            ->where('set_from', 'custom')
             ->with(['componentFiled' => fn($q) => $q->where('group', 1)->orderBy('position')])
             ->firstOrFail();
 
@@ -382,7 +362,6 @@ class DynamicComponentController extends Controller
     {
 
         $component = ComponentMaster::where('name', $slug)
-            ->where('set_from', 'custom')
             ->with(['componentFiled' => fn($q) => $q->where('group', 1)->orderBy('position')])
             ->firstOrFail();
 
@@ -634,7 +613,6 @@ class DynamicComponentController extends Controller
     public function edit(string $slug, string $id)
     {
         $component = ComponentMaster::where('name', $slug)
-            ->where('set_from', 'custom')
             ->with(['componentFiled' => fn($q) => $q->where('group', 1)->orderBy('position')])
             ->firstOrFail();
 
@@ -667,10 +645,6 @@ class DynamicComponentController extends Controller
                     if (!isset($fields[$sg][$si])) {
                         $fields[$sg][$si] = collect();
                     }
-                    $existing = $fields[$sg][$si][$template->name] ?? null;
-                    if ($existing && ($match->value === null || $match->value === '') && ($existing->value !== null && $existing->value !== '')) {
-                        continue;
-                    }
                     $fields[$sg][$si][$template->name] = $match;
                 }
             }
@@ -697,7 +671,6 @@ class DynamicComponentController extends Controller
     public function update(Request $request, string $slug, string $id)
     {
         $component = ComponentMaster::where('name', $slug)
-            ->where('set_from', 'custom')
             ->with(['componentFiled' => fn($q) => $q->where('group', 1)->orderBy('position')])
             ->firstOrFail();
 
@@ -1099,7 +1072,6 @@ class DynamicComponentController extends Controller
     public function destroy(string $slug, string $id)
     {
         $component = ComponentMaster::where('name', $slug)
-            ->where('set_from', 'custom')
             ->with(['componentFiled' => fn($q) => $q->where('group', 1)])
             ->firstOrFail();
 
@@ -1295,21 +1267,10 @@ class DynamicComponentController extends Controller
         // If it's an image, run through imageComprese (webp optimize)
         $mime = $file->getMimeType();
         if (is_string($mime) && str_starts_with($mime, 'image/')) {
-            try {
-                $compressed = imageComprese($file->getRealPath());
-                if ($compressed) {
-                    return $compressed;
-                }
-            } catch (\Throwable $e) {
-                report($e);
-            }
+            return imageComprese($file->getRealPath());
         }
 
-        return $this->storeUploadedFileAsIs($file);
-    }
-
-    protected function storeUploadedFileAsIs($file)
-    {
+        // Non-image: store as-is with a safe unique filename
         $originalName = $file->getClientOriginalName();
         $ext = $file->getClientOriginalExtension();
         if (!$ext) {

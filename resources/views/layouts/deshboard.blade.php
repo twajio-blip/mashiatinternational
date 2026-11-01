@@ -32,9 +32,6 @@
     <script src="{{ asset('magnific-popup/magnific-popup.js') }}"></script>
     {{-- Apex chart --}}
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    {{-- SunEditor v2.x: pin version — @latest can resolve to v3, which requires plugins in create() and breaks our config (textarea never upgrades). --}}
-    <link href="https://cdn.jsdelivr.net/npm/suneditor@2.47.8/dist/css/suneditor.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/suneditor@2.47.8/dist/suneditor.min.js"></script>
     <!-- javascript file -->
     @yield('css')
 
@@ -42,7 +39,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="font-custom" style="font-family: {{$font_backend == null ? '' :$font_backend->font_family}};">
+<body class="font-custom" style="font-family: Inter, system-ui, sans-serif;">
     <section class="flex">
         <!-- side bar starts-->
         <div class="fixed overlay w-fit h-full bg-black bg-opacity-20 z-40 md:w-fit">

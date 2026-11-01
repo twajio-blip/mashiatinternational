@@ -228,7 +228,7 @@
                 </div>
                 @if($groupIsMultiple)
                 <div class="mt-3 order-last add-more-wrapper">
-                    <button type="button" class="add-more-group-instance py-2.5 px-5 text-sm font-semibold rounded-xl bg-skin-backend-accent bg-opacity-20 text-black hover:bg-opacity-30" data-schema-group="{{ $schemaGroup }}">
+                    <button type="button" class="add-more-group-instance py-2.5 px-5 text-sm font-semibold rounded-xl bg-skin-backend-accent bg-opacity-20 text-skin-backend-accent hover:bg-opacity-30" data-schema-group="{{ $schemaGroup }}">
                         <i class="fa-solid fa-plus mr-1"></i> Add more {{ $groupName }}
                     </button>
                 </div>

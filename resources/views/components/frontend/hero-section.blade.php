@@ -1,15 +1,3 @@
-@php
-    use Illuminate\Support\Str;
-
-    $content = $data[0] ?? [];
-    $hero = $content[0] ?? [];
-    $buttons = $content[1] ?? [];
-    $floatingCard1 = $content[2] ?? [];
-    $floatingCard2 = $content[3] ?? [];
-    $heroImage = $hero['Hero Image'] ?? '';
-    $heroImageUrl = $heroImage ? (Str::startsWith($heroImage, ['http://', 'https://', '/']) ? $heroImage : asset('images/' . $heroImage)) : null;
-@endphp
-
 <section id="hero-section" class="w-full bg-white overflow-hidden">
 
     <div class="container relative">
@@ -20,25 +8,25 @@
             <div class="max-w-3xl xl:col-span-6">
 
                 <h1
-                    class="text-header text-[34px] font-extrabold leading-[1.08] min-[380px]:text-[36px] sm:text-[42px]"
+                    class="text-balance text-text-color font-display text-[34px] font-extrabold leading-[1.08] min-[380px]:text-[36px] sm:text-[42px]"
                 >
-                    {{ $hero['Hero Title'] ?? '' }}
+                    Prepare your student visa financial documents with confidence
                 </h1>
 
                 <p
                     class="mt-6 max-w-2xl text-[16px] leading-relaxed text-muted sm:text-[18px] xl:max-w-xl"
                 >
-                    {{ $hero['Hero Subtitle'] ?? '' }}
+                    Mashiat International helps Bangladeshi students and their sponsors assess financial capacity, document sources of funds, obtain certified net worth and valuation reports, and review every document before it reaches an application file.
                 </p>
 
                 <div class="mt-8 flex flex-col gap-3 sm:flex-row">
 
                     {{-- Primary Button --}}
                     <a
-                        href="{{ $buttons['Primary Button URL'] ?? '#' }}"
+                        href="/contact"
                         class="inline-flex min-w-0 items-center justify-center gap-2 rounded-lg text-center font-medium duration-200 ease-out bg-btn-primary text-white hover:bg-btn-primary-hover shadow-card min-h-14 px-6 py-3 text-base sm:px-7 whitespace-nowrap"
                     >
-                        {{ $buttons['Primary Button Text'] ?? '' }}
+                        Book a Consultation
 
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -59,10 +47,10 @@
 
                     {{-- Secondary Button --}}
                     <a
-                        href="{{ $buttons['Secondary Button URL'] ?? '#' }}"
-                        class="inline-flex min-w-0 items-center justify-center gap-2 rounded-lg text-center font-medium duration-200 ease-out border border-border-color hover:border-background-2 hover:text-tag bg-white min-h-14 px-6 py-3 text-base sm:px-7 whitespace-nowrap"
+                        href="/student-visa"
+                        class="inline-flex min-w-0 items-center justify-center gap-2 rounded-lg text-center font-medium transition-[background-color,color,border-color,box-shadow,transform] duration-200 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:pointer-events-none disabled:opacity-60 border border-line bg-white text-navy hover:border-brand-blue hover:text-brand-blue min-h-14 px-6 py-3 text-base sm:px-7 whitespace-nowrap"
                     >
-                        {{ $buttons['Secondary Button Text'] ?? '' }}
+                        Explore student visa support
                     </a>
 
                 </div>
@@ -75,47 +63,44 @@
 
                 <div class="relative">
 
-                    <div class="overflow-hidden rounded-xl border border-border-color">
+                    <div class="overflow-hidden rounded-xl border border-line bg-canvas shadow-lift">
 
-                        @if($heroImageUrl)
-                            <img
-                                src="{{ $heroImageUrl }}"
-                                alt="{{ $hero['Hero Image Alt Text'] ?? '' }}"
-                                class="h-full w-full object-cover"
-                                width="1200"
-                                height="900"
-                            >
-                        @endif
+                        <img
+                            src="{{ asset('images/hero.jpg') }}"
+                            alt="A Mashiat International consultant reviewing financial documents with a student and their sponsor"
+                            class="h-full w-full object-cover"
+                            width="1200"
+                            height="900"
+                        >
 
                     </div>
 
 
                     {{-- FLOATING INFORMATION CARD --}}
-                    <div class="mt-4 grid gap-4 sm:grid-cols-2 xl:absolute xl:-bottom-8 xl:-left-8 xl:mt-0 xl:grid-cols-1 xl:gap-0 w-fill xl:w-[60%]">
+                    <div class="mt-4 grid gap-4 sm:grid-cols-2 xl:absolute xl:-bottom-8 xl:-left-8 xl:mt-0 xl:w-[300px] xl:grid-cols-1 xl:gap-0">
 
-                        {{-- FLOATING CARD 1 --}}
-                        <div class="rounded-xl border border-border-color bg-white p-5 shadow-card">
+                        <div class="rounded-xl border border-line bg-white p-5 shadow-card">
 
-                            <p class="text-[15px] font-semibold">
-                                {{ $floatingCard1['Floating Card 1 Title'] ?? '' }}
+                            <p class="font-display text-[15px] font-semibold text-navy-deep">
+                                Documentation, not decisions
                             </p>
 
                             <p class="mt-2 text-[14px] leading-relaxed text-muted">
-                                {{ $floatingCard1['Floating Card 1 Description'] ?? '' }}
+                                We prepare accurate, verifiable financial evidence. Visa outcomes rest solely with immigration authorities.
                             </p>
 
                         </div>
 
 
                         {{-- MOBILE ONLY CARD --}}
-                        <div class="rounded-xl border border-border-color bg-background p-5 text-white xl:hidden">
+                        <div class="rounded-xl border border-line bg-navy-deep p-5 text-white shadow-card xl:hidden">
 
-                            <p class="text-[15px] font-semibold">
-                                {{ $floatingCard2['Floating Card 2 Title'] ?? '' }}
+                            <p class="font-display text-[15px] font-semibold">
+                                Start 6–9 months early
                             </p>
 
                             <p class="mt-2 text-[14px] leading-relaxed text-white/70">
-                                {{ $floatingCard2['Floating Card 2 Description'] ?? '' }}
+                                Fund maturity and filing history cannot be created retrospectively.
                             </p>
 
                         </div>

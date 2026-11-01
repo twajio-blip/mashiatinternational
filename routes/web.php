@@ -38,7 +38,6 @@ Route::middleware(['visitor'])->group(function () {
         Route::get('/', [PageController::class, 'defaultPage']);
     }
     Route::get('service-view/{id}', [PageController::class, 'serviceView'])->name('service-view');
-    Route::get('team/{id}', [PageController::class, 'teamView'])->name('team-view');
     Route::get('blog/view/{id}/current_page_id/{current_page_id?}', [PageController::class, 'blogView'])->name('blog.view');
     Route::get('list/view/{id}/current_page_id/{current_page_id?}', [PageController::class, 'listView'])->name('list.view');
     Route::get('news/view/{id}/current_page_id/{current_page_id?}', [PageController::class, 'blogView'])->name('article.view');

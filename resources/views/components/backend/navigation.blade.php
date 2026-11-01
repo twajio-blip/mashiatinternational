@@ -1,6 +1,5 @@
 <ul
     class="sidebar-nav pb-4 md:py-4 mt-4 text-white text-[14px] bg-skin-backend-secondary h-[calc(100%-60px)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-800 space-y-2">
-    @php($pageEditEnabled = (bool) ($general?->page_edit_enabled ?? false))
     <!-- Search -->
     <li class="px-2 space-y-1 pb-4">
       <!-- Search box -->
@@ -31,17 +30,15 @@
         </a>
     </li>
     {{-- Pages --}}
-    @if($pageEditEnabled)
-        <li class="px-2 space-y-1">
-            <a href="{{ route('pages.index') }}">
-                <div
-                    class="dropdown-trigger  {{ Route::is('pages.index') || Route::is('pages.create') || Route::is('pages.edit') ? 'sidebar-nav-active active-nav' : '' }}  active-trigger flex items-center gap-2 py-2.5 px-4 cursor-pointer rounded-md hover:bg-skin-backend-accent hover:text-skin-invert transition-colors">
-                    <span class="w-6 flex items-center text-lg"><i class="fa-regular fa-file-lines"></i></span>
-                    <h1 class="hideable">Pages</h1>
-                </div>
-            </a>
-        </li>
-    @endif
+    <li class="px-2 space-y-1">
+        <a href="{{ route('pages.index') }}">
+            <div
+                class="dropdown-trigger  {{ Route::is('pages.index') || Route::is('pages.create') || Route::is('pages.edit') ? 'sidebar-nav-active active-nav' : '' }}  active-trigger flex items-center gap-2 py-2.5 px-4 cursor-pointer rounded-md hover:bg-skin-backend-accent hover:text-skin-invert transition-colors">
+                <span class="w-6 flex items-center text-lg"><i class="fa-regular fa-file-lines"></i></span>
+                <h1 class="hideable">Pages</h1>
+            </div>
+        </a>
+    </li>
     {{-- Dynamic Components (field-wise table, insert, edit, delete) --}}
     @isset($dynamicComponents)
         @if($dynamicComponents->isNotEmpty())
@@ -190,7 +187,7 @@
     <!-- Notification -->
     <li class="px-2 space-y-1">
         <div
-            class="dropdown-trigger {{ Route::is('subscriber.index') || Route::is('contact.index') ? 'sidebar-nav-active' : '' }}  active-trigger flex items-center gap-2 py-2.5 px-4 cursor-pointer rounded-md hover:bg-skin-backend-accent hover:text-skin-invert transition-colors">
+            class="dropdown-trigger {{ Route::is('contact.index') ? 'sidebar-nav-active' : '' }}  active-trigger flex items-center gap-2 py-2.5 px-4 cursor-pointer rounded-md hover:bg-skin-backend-accent hover:text-skin-invert transition-colors">
             <span class="w-4 h-4 flex items-center"><i class="fa-solid fa-bell"></i></span>
 
             <h1 class="hideable">Notifications</h1>
@@ -199,40 +196,39 @@
         </div>
         <!-- Element more -->
         <ul class="dropdown space-y-1"
-            style="display: {{ Route::is('contact.index') || Route::is('subscriber.index') ? 'block' : 'none' }}; ">
+            style="display: {{ Route::is('contact.index') ? 'block' : 'none' }}; ">
             <li><a href="{{ route('contact.index') }}"
                     class="active-trigger  {{ Route::is('contact.index') ? 'sidebar-nav-active active-nav' : '' }}   relative inline-block w-full py-2.5 px-4 pl-14 before:absolute before:top-1/2 before:left-9 before:-translate-y-1/2 before:w-2 before:h-2 before:border-2 before:border-gray-600 before:rounded-full rounded-md hover:bg-skin-backend-accent hover:text-skin-invert transition-colors">Inquiries
                 </a>
             </li>
-            <li><a href="{{ route('subscriber.index') }}"
+            {{-- Subscriber hidden --}}
+            {{-- <li><a href="{{ route('subscriber.index') }}"
                     class="active-trigger  {{ Route::is('subscriber.index') ? 'sidebar-nav-active active-nav' : '' }}   relative inline-block w-full py-2.5 px-4 pl-14 before:absolute before:top-1/2 before:left-9 before:-translate-y-1/2 before:w-2 before:h-2 before:border-2 before:border-gray-600 before:rounded-full rounded-md hover:bg-skin-backend-accent hover:text-skin-invert transition-colors">Subscriber</a>
-            </li>
+            </li> --}}
         </ul>
 
     </li>
     <!-- Section -->
-    @if($pageEditEnabled)
-        <li class="px-2 space-y-1">
-            <div
-                class="dropdown-trigger {{ Route::is('widget.index') || Route::is('theme-option.index') ? 'sidebar-nav-active' : '' }}  active-trigger flex items-center gap-2 py-2.5 px-4 cursor-pointer rounded-md hover:bg-skin-backend-accent hover:text-skin-invert transition-colors">
-                <span class="w-4 h-4 flex items-center"><i class="fa-solid fa-layer-group"></i></span>
-                <h1 class="hideable">Sections</h1>
-                <i
-                    class="dropdown-icon hideable fa-solid fa-angle-down ml-auto rotate-0 transition-transform inline-block"></i>
-            </div>
-            <!-- Element more -->
-            <ul class="dropdown space-y-1" style="display: {{ Route::is('component.index') ? 'block' : 'none' }}; ">
-                <li><a href="{{ route('component.index') }}"
-                        class="active-trigger  {{ Route::is('component.index') ? 'sidebar-nav-active active-nav' : '' }}   relative inline-block w-full py-2.5 px-4 pl-14 before:absolute before:top-1/2 before:left-9 before:-translate-y-1/2 before:w-2 before:h-2 before:border-2 before:border-gray-600 before:rounded-full rounded-md hover:bg-skin-backend-accent hover:text-skin-invert transition-colors">Manage
-                        Sections</a>
-                </li>
-            </ul>
-        </li>
-    @endif
-    <!-- Setting -->
     <li class="px-2 space-y-1">
         <div
             class="dropdown-trigger {{ Route::is('widget.index') || Route::is('theme-option.index') ? 'sidebar-nav-active' : '' }}  active-trigger flex items-center gap-2 py-2.5 px-4 cursor-pointer rounded-md hover:bg-skin-backend-accent hover:text-skin-invert transition-colors">
+            <span class="w-4 h-4 flex items-center"><i class="fa-solid fa-layer-group"></i></span>
+            <h1 class="hideable">Sections</h1>
+            <i
+                class="dropdown-icon hideable fa-solid fa-angle-down ml-auto rotate-0 transition-transform inline-block"></i>
+        </div>
+        <!-- Element more -->
+        <ul class="dropdown space-y-1" style="display: {{ Route::is('component.index') ? 'block' : 'none' }}; ">
+            <li><a href="{{ route('component.index') }}"
+                    class="active-trigger  {{ Route::is('component.index') ? 'sidebar-nav-active active-nav' : '' }}   relative inline-block w-full py-2.5 px-4 pl-14 before:absolute before:top-1/2 before:left-9 before:-translate-y-1/2 before:w-2 before:h-2 before:border-2 before:border-gray-600 before:rounded-full rounded-md hover:bg-skin-backend-accent hover:text-skin-invert transition-colors">Manage
+                    Sections</a>
+            </li>
+        </ul>
+    </li>
+    <!-- Setting -->
+    <li class="px-2 space-y-1">
+        <div
+            class="dropdown-trigger {{ Route::is('widget.index') || Route::is('theme-option.index') || Route::is('header.footer.settings') || Route::is('font.index') || Route::is('cache.clear') ? 'sidebar-nav-active' : '' }}  active-trigger flex items-center gap-2 py-2.5 px-4 cursor-pointer rounded-md hover:bg-skin-backend-accent hover:text-skin-invert transition-colors">
             <span class="w-4 h-4 flex items-center"><i class="fa-solid fa-gear"></i></span>
 
             <h1 class="hideable">Setting</h1>
@@ -241,14 +237,14 @@
         </div>
         <!-- Element more -->
         <ul class="dropdown space-y-1"
-            style="display: {{ Route::is('widget.index') || Route::is('theme-option.index') || Route::is('font.index') || Route::is('smtp_setup') || Route::is('cache.clear') ? 'block' : 'none' }}; ">
+            style="display: {{ Route::is('widget.index') || Route::is('theme-option.index') || Route::is('header.footer.settings') || Route::is('font.index') || Route::is('cache.clear') ? 'block' : 'none' }}; ">
             <li><a href="{{ route('theme-option.index') }}"
                     class="active-trigger  {{ Route::is('theme-option.index') ? 'sidebar-nav-active active-nav' : '' }}   relative inline-block w-full py-2.5 px-4 pl-14 before:absolute before:top-1/2 before:left-9 before:-translate-y-1/2 before:w-2 before:h-2 before:border-2 before:border-gray-600 before:rounded-full rounded-md hover:bg-skin-backend-accent hover:text-skin-invert transition-colors">Website
                     Setting
                 </a>
             </li>
             <li><a href="{{ route('header.footer.settings') }}"
-                    class="active-trigger  {{ Route::is('theme-option.index') ? 'sidebar-nav-active active-nav' : '' }}   relative inline-block w-full py-2.5 px-4 pl-14 before:absolute before:top-1/2 before:left-9 before:-translate-y-1/2 before:w-2 before:h-2 before:border-2 before:border-gray-600 before:rounded-full rounded-md hover:bg-skin-backend-accent hover:text-skin-invert transition-colors">Header  Setting
+                    class="active-trigger  {{ Route::is('header.footer.settings') ? 'sidebar-nav-active active-nav' : '' }}   relative inline-block w-full py-2.5 px-4 pl-14 before:absolute before:top-1/2 before:left-9 before:-translate-y-1/2 before:w-2 before:h-2 before:border-2 before:border-gray-600 before:rounded-full rounded-md hover:bg-skin-backend-accent hover:text-skin-invert transition-colors">Header Setting
                 </a>
             </li>
             <li><a href="{{ route('font.index') }}"
@@ -260,10 +256,11 @@
                     class="active-trigger  {{ Route::is('widget.index') ? 'sidebar-nav-active active-nav' : '' }}   relative inline-block w-full py-2.5 px-4 pl-14 before:absolute before:top-1/2 before:left-9 before:-translate-y-1/2 before:w-2 before:h-2 before:border-2 before:border-gray-600 before:rounded-full rounded-md hover:bg-skin-backend-accent hover:text-skin-invert transition-colors">Manage
                     Navigation</a>
             </li>
-            <li><a href="{{ route('smtp_setup') }}"
+            {{-- SMTP hidden --}}
+            {{-- <li><a href="{{ route('smtp_setup') }}"
                     class="active-trigger  {{ Route::is('smtp_setup') ? 'sidebar-nav-active active-nav' : '' }}   relative inline-block w-full py-2.5 px-4 pl-14 before:absolute before:top-1/2 before:left-9 before:-translate-y-1/2 before:w-2 before:h-2 before:border-2 before:border-gray-600 before:rounded-full rounded-md hover:bg-skin-backend-accent hover:text-skin-invert transition-colors">
                     SMTP Setup</a>
-            </li>
+            </li> --}}
             <li><a href="{{ route('cache.clear') }}"
                     class="active-trigger  {{ Route::is('cache.clear') ? 'sidebar-nav-active active-nav' : '' }}   relative inline-block w-full py-2.5 px-4 pl-14 before:absolute before:top-1/2 before:left-9 before:-translate-y-1/2 before:w-2 before:h-2 before:border-2 before:border-gray-600 before:rounded-full rounded-md hover:bg-skin-backend-accent hover:text-skin-invert transition-colors">
                     Clear Cache</a>

@@ -1,42 +1,28 @@
 @props(['paginator'])
 
-@php
-    $paginationElements = [];
-    if ($paginator instanceof \Illuminate\Pagination\LengthAwarePaginator) {
-        $window = \Illuminate\Pagination\UrlWindow::make($paginator);
-        $paginationElements = array_filter([
-            $window['first'],
-            is_array($window['slider']) ? '...' : null,
-            $window['slider'],
-            is_array($window['last']) ? '...' : null,
-            $window['last'],
-        ]);
-    }
-@endphp
-
 @if ($paginator->hasPages())
-    <nav class="flex flex-wrap items-center gap-2" aria-label="Pagination">
+    <nav class="flex items-center gap-2" aria-label="Pagination">
         {{-- Previous Page Link --}}
         @if ($paginator->onFirstPage())
             <button type="button"
                 class=" min-h-[32px] min-w-[32px] py-1.5 px-3 inline-flex justify-center items-center gap-x-1.5 text-sm border border-default border-opacity-25 bg-skin-backend-secondary text-skin-backend-text-base focus:outline-none disabled:opacity-50 disabled:pointer-events-none "
                 aria-label="Previous" disabled> 
-                <span class="inline-flex"><i class="fa-solid fa-angle-left"></i></span>
+                <span class="hidden sm:block"><i class="fa-solid fa-angle-left"></i></span>
             </button>
         @else
             <a href="{{ $paginator->previousPageUrl() }}"
                 class="min-h-[32px] min-w-[32px] py-1.5 px-3 inline-flex justify-center items-center gap-x-1.5 text-sm border border-default border-opacity-25 bg-skin-backend-secondary text-skin-backend-text-base hover:text-skin-hover hover:border-highlight focus:outline-none focus:text-skin-hover focus:border-highlight transition-colors"
                 aria-label="Previous">
-                <span class="inline-flex"><i class="fa-solid fa-angle-left"></i></span>
+                <span class="hidden sm:block"><i class="fa-solid fa-angle-left"></i></span>
             </a>
         @endif
 
         {{-- Pagination Links --}}
-        @foreach ($paginationElements as $element)
+        @foreach ($paginator->links()->elements as $element)
             {{-- "Three Dots" Separator --}}
             @if (is_string($element))
                 <span
-                    class="min-h-[32px] min-w-[32px] flex justify-center items-center border border-default border-opacity-25 text-skin-backend-text-base py-1.5 px-3 text-sm">...</span>
+                    class="min-h-[32px] min-w-[32px] flex justify-center items-center border border-default border-opacity-25 text-skin-backedn-text-base py-1.5 px-3 text-sm">...</span>
             @endif
 
             {{-- Array Of Links --}}
@@ -59,13 +45,13 @@
             <a href="{{ $paginator->nextPageUrl() }}"
                 class="min-h-[32px] min-w-[32px] py-1.5 px-3 inline-flex justify-center items-center gap-x-1.5 text-sm border border-default border-opacity-25 bg-skin-backend-secondary text-skin-backend-text-base hover:text-skin-hover hover:border-highlight focus:outline-none focus:text-skin-hover focus:border-highlight transition-colors"
                 aria-label="Next">
-                <span class="inline-flex"><i class="fa-solid fa-angle-right"></i></span> 
+                <span class="hidden sm:block"><i class="fa-solid fa-angle-right"></i></span> 
             </a>
         @else
             <button type="button"
                 class="min-h-[32px] min-w-[32px] py-1.5 px-3 inline-flex justify-center items-center gap-x-1.5 text-sm border border-default border-opacity-25 bg-skin-backend-secondary text-skin-backend-text-base focus:outline-none disabled:opacity-50 disabled:pointer-events-none"
                 aria-label="Next" disabled>
-                <span class="inline-flex"><i class="fa-solid fa-angle-right"></i></span> 
+                <span class="hidden sm:block"><i class="fa-solid fa-angle-right"></i></span> 
             </button>
         @endif
     </nav>

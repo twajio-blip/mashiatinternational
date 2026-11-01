@@ -75,6 +75,8 @@
         
                                 </ul>
         
+                                <a href="{{ route('notification.index') }}"
+                                    class="w-full py-4 px-10 text-center inline-block sticky bottom-0 left-0 font-bold text-base border-t border-default border-opacity-25">View All</a>
                             </div>
         
                         </div>

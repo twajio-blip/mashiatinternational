@@ -47,25 +47,19 @@ if (!function_exists("input")) {
 if (!function_exists("imageComprese")) {
     function imageComprese($image)
     {
-        try {
-            // create image manager with desired driver
-            $manager = new ImageManager(new Driver());
 
-            // read image from file system
-            $compressedImage = $manager->read($image);
-            // save modified image in new format
-            // encode jpeg as webp format
+        // create image manager with desired driver
+        $manager = new ImageManager(new Driver());
 
-            $encoded = $compressedImage->encode(new WebpEncoder(quality: 65)); // Intervention\Image\EncodedImage
-            $encrypted =  md5($image) . '.webp';
-            $encoded->save('images/' . $encrypted);
-            return $encrypted;
-        } catch (\Throwable $exception) {
-            $extension = $image->getClientOriginalExtension() ?: $image->extension() ?: 'jpg';
-            $encrypted = uniqid(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME) . '_', true) . '.' . $extension;
-            $image->move(public_path('images'), $encrypted);
-            return $encrypted;
-        }
+        // read image from file system
+        $compressedImage = $manager->read($image);
+        // save modified image in new format 
+        // encode jpeg as webp format
+
+        $encoded = $compressedImage->encode(new WebpEncoder(quality: 65)); // Intervention\Image\EncodedImage
+        $encrypted =  md5($image) . '.webp';
+        $encoded->save('images/' . $encrypted);
+        return $encrypted;
     }
 }
 

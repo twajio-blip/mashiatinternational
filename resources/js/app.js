@@ -8,16 +8,105 @@ import Alpine from "alpinejs";
 import { HSStaticMethods } from "preline";
 
 window.Alpine = Alpine;
+window.AOS = AOS;
+
+// ─── Reusable Lightbox Zoom + Pan Component ──────────────────────────────────
+// Usage: <div x-data="lightboxZoom()"> around any lightbox image.
+// Parent navigates/closes by dispatching window events:
+//   window.dispatchEvent(new CustomEvent('lightbox:navigate'))
+//   window.dispatchEvent(new CustomEvent('lightbox:close'))
+Alpine.data('lightboxZoom', () => ({
+    zoomed: false,
+    panX: 0,
+    panY: 0,
+    isPanning: false,
+    startPanX: 0,
+    startPanY: 0,
+    scale: 1.8,
+
+    init() {
+        this._reset = () => this.resetZoom();
+        window.addEventListener('lightbox:navigate', this._reset);
+        window.addEventListener('lightbox:close', this._reset);
+    },
+    destroy() {
+        window.removeEventListener('lightbox:navigate', this._reset);
+        window.removeEventListener('lightbox:close', this._reset);
+    },
+    resetZoom() {
+        this.zoomed = false;
+        this.panX = 0;
+        this.panY = 0;
+        this.isPanning = false;
+    },
+    toggleZoom() {
+        if (this.isPanning) return;
+        this.zoomed = !this.zoomed;
+        if (!this.zoomed) { this.panX = 0; this.panY = 0; }
+    },
+    startPan(e) {
+        if (!this.zoomed) return;
+        this.isPanning = true;
+        this.startPanX = e.clientX - this.panX;
+        this.startPanY = e.clientY - this.panY;
+        e.preventDefault();
+    },
+    doPan(e) {
+        if (!this.isPanning) return;
+        this.panX = e.clientX - this.startPanX;
+        this.panY = e.clientY - this.startPanY;
+    },
+    stopPan() { this.isPanning = false; },
+    startTouchPan(e) {
+        if (!this.zoomed) return;
+        const t = e.touches[0];
+        this.isPanning = true;
+        this.startPanX = t.clientX - this.panX;
+        this.startPanY = t.clientY - this.panY;
+    },
+    doTouchPan(e) {
+        if (!this.isPanning) return;
+        const t = e.touches[0];
+        this.panX = t.clientX - this.startPanX;
+        this.panY = t.clientY - this.startPanY;
+        e.preventDefault();
+    },
+    get imgStyle() {
+        const tx = this.zoomed ? this.panX / this.scale : 0;
+        const ty = this.zoomed ? this.panY / this.scale : 0;
+        const tr = this.isPanning ? 'none' : 'transform 0.3s ease-in-out';
+        return `transform: scale(${this.zoomed ? this.scale : 1}) translate(${tx}px, ${ty}px); transition: ${tr}; will-change: transform;`;
+    },
+    get cursorClass() {
+        if (!this.zoomed) return 'cursor-zoom-in';
+        return this.isPanning ? 'cursor-grabbing' : 'cursor-grab';
+    }
+}));
 
 Alpine.start();
 
-    // Initialize AOS after the library is loaded
+
+    // Initialize AOS immediately
     AOS.init({
-        duration: 1000, // Animation speed (1 second)
-        once: true,     // Animation happens only once while scrolling
-        offset: 120,    // Start animation 120px before element enters view
+        duration: 1000,
+        once: true,
+        offset: 0,
         easing: 'ease-in-out',
+        startEvent: 'DOMContentLoaded', // Faster initial check
     });
+
+    // CRITICAL FIX: Refresh AOS when resources load or Alpine inits
+    window.addEventListener('load', () => AOS.refresh());
+    document.addEventListener('alpine:initialized', () => {
+        AOS.refresh();
+        setTimeout(() => AOS.refresh(), 500);
+    });
+
+    // Final fallback: Mutation Observer to catch dynamic layout shifts
+    const observer = new MutationObserver(() => {
+        AOS.refresh();
+    });
+    observer.observe(document.body, { childList: true, subtree: false });
 
 // Reinitialize Preline components after every page load
 document.addEventListener("DOMContentLoaded", function () {

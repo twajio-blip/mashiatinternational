@@ -1,86 +1,147 @@
-@props(['data' => [], 'general' => null])
-
+@props(['data' => []])
 @php
-    use Illuminate\Support\Str;
+    $item = $data[0][0] ?? [];
+    $feature_group = $data[0][1]['instances'] ?? [];
 
-    $block = $data[0] ?? [];
-    $section = $block[0] ?? [];
-    $content = $block[1]['instances'] ?? [];
-    $image = $block[2] ?? [];
-    $information = $block[3]['instances'] ?? [];
-    $button = $block[4] ?? [];
+    // Main Content
+    $title = $item['title'] ?? 'Elevating Standards';
+    $sub_title = $item['subtitle'] ?? 'Welcome to RAR Lift';
+    $description = $item['description'] ?? $item['discription'] ?? 'We specialize in comprehensive lifting solutions.';
 
-    $label = $section['Section Label'] ?? null;
-    $title = $section['Section Title'] ?? null;
-    $imageName = $image['Image'] ?? null;
-    $imageAlt = $image['Alt Text'] ?? $title ?? 'About Mashiat International';
-    $imageUrl = $imageName ? (Str::startsWith($imageName, ['http://', 'https://', '/']) ? $imageName : asset('images/' . $imageName)) : null;
-    $buttonText = $button['Button Text'] ?? null;
-    $buttonUrl = $button['Button URL'] ?? '#';
+    // Call to Action
+    $btn_text = $item['btn_text'] ?? 'Discover Our Story';
+    $btn_link = $item['btn_link'] ?? '#';
+
+    // Right Side Composition
+    $image = $item['ceo_image'] ?? 'about-placeholder.jpg';
+    $ceo_quote = $item['ceo_quote'] ?? 'A lift is considered the heart of a building.';
+    $years_experience = $item['years_experience'] ?? '15+';
 @endphp
 
-<section class="bg-white py-16 sm:py-24">
-    <div class="container">
-        <div class="grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
-            <div class="lg:col-span-6">
-                <div class="overflow-hidden rounded-xl border border-border-color bg-background-3">
-                    @if ($imageUrl)
-                        <img src="{{ $imageUrl }}" alt="{{ $imageAlt }}" loading="lazy"
-                            class="aspect-[4/3] h-full w-full object-cover">
-                    @endif
+@pushOnce('css')
+    <link rel="stylesheet" href="{{ asset('css/aos.css') }}">
+@endPushOnce
+
+<section class="py-16 lg:py-24 bg-white relative overflow-hidden">
+    {{-- Background Pattern --}}
+    <div class="absolute inset-0 opacity-[0.03] pointer-events-none"
+        style="background-image: radial-gradient(#1A1A1A 1px, transparent 1px); background-size: 32px 32px;">
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 relative z-10">
+        <div class="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+
+            {{-- Left Content Column --}}
+            <div class="lg:col-span-5">
+
+                {{-- Heading Section --}}
+                <div class="mb-8" data-aos="fade-right">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="text-brand-red font-bold uppercase tracking-widest text-size-sub-header">
+                            {{ $title }}
+                        </span>
+                    </div>
+                    <h1 class="text-size-title font-bold text-brand-charcoal leading-[1.1]">
+                        {{ $sub_title }}
+                    </h1>
+                </div>
+
+                <p class="text-size-body text-gray-600 mb-8 leading-relaxed font-medium" data-aos="fade-right"
+                    data-aos-delay="100">
+                    {{ $description }}
+                </p>
+
+                {{-- Feature List --}}
+                <div class="space-y-6 mb-12">
+                    @foreach($feature_group as $index => $feature)
+                        <div class="flex items-start" data-aos="fade-up" data-aos-delay="{{ 200 + ($index * 100) }}">
+                            <div
+                                class="w-12 h-12 rounded-full bg-brand-red/10 flex items-center justify-center shrink-0 mr-4">
+                                @if(str_contains($feature['feature_icon'], '<i'))
+                                    <span class="text-brand-red text-size-sub-header">
+                                        {!! $feature['feature_icon'] !!}
+                                    </span>
+                                @else
+                                    <i class="{{ $feature['feature_icon'] }} text-brand-red text-size-sub-header"></i>
+                                @endif
+                            </div>
+                            <div>
+                                <h2 class="font-bold text-size-sub-header text-brand-charcoal">
+                                    {{ $feature['feature_title'] ?? 'Feature Title' }}
+                                </h2>
+                                <p class="text-size-body text-gray-500">
+                                    {{ $feature['feature_desc'] ?? 'Feature description goes here.' }}
+                                </p>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div data-aos="fade-up" data-aos-delay="500" class="flex justify-center sm:justify-start">
+                    <a href="{{ url($btn_link) }}"
+                        class="inline-flex items-center px-8 py-4 text-size-sub-header bg-brand-charcoal text-white rounded-lg font-bold hover:bg-brand-red transition-all duration-300 shadow-xl group">
+                        {{ $btn_text }}
+                        <i
+                            class="fa-solid fa-arrow-right text-size-sub-header ml-2 group-hover:translate-x-2 transition-transform"></i>
+                    </a>
                 </div>
             </div>
 
-            <div class="lg:col-span-6">
-                @if ($label)
-                    <p class="mb-3 text-[13px] font-semibold text-tag">{{ $label }}</p>
-                @endif
-
-                @if ($title)
-                    <h2 class="font-display text-[30px] font-bold leading-[1.15] text-header sm:text-[38px]">
-                        {{ $title }}
-                    </h2>
-                @endif
-
-                @if (!empty($content))
-                    <div class="mt-5 space-y-4 text-[17px] leading-relaxed text-muted">
-                        @foreach ($content as $item)
-                            @if (!empty($item['Paragraph']))
-                                <p>{{ $item['Paragraph'] }}</p>
-                            @endif
-                        @endforeach
+            {{-- Right Image/Quote Column --}}
+            <div class="lg:col-span-7 relative" data-aos="fade-left" data-aos-duration="1200">
+                <div class="relative h-[550px] w-full rounded-2xl overflow-hidden shadow-2xl group">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110"
+                        style="background-image: url('{{ asset('images/' . $image) }}'); background-color: #1a1a1a;">
                     </div>
-                @endif
 
-                @if (!empty($information))
-                    <dl class="mt-8 divide-y divide-border-color border-y border-border-color">
-                        @foreach ($information as $item)
-                            @if (!empty($item['Title']) || !empty($item['Description']))
-                                <div class="flex flex-col gap-1 py-4 sm:flex-row sm:gap-6">
-                                    @if (!empty($item['Title']))
-                                        <dt class="font-display text-[15px] font-semibold text-header sm:w-36 sm:shrink-0">
-                                            {{ $item['Title'] }}
-                                        </dt>
-                                    @endif
-                                    @if (!empty($item['Description']))
-                                        <dd class="text-[15px] leading-relaxed text-muted">
-                                            {{ $item['Description'] }}
-                                        </dd>
-                                    @endif
-                                </div>
-                            @endif
-                        @endforeach
-                    </dl>
-                @endif
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
 
-                @if ($buttonText)
-                    <a class="mt-8 inline-flex min-w-0 items-center justify-center gap-2 rounded-lg border border-border-color bg-white px-5 py-3 text-center text-[15px] font-medium text-header transition-colors duration-200 ease-out hover:border-tag hover:text-tag"
-                        href="{{ url($buttonUrl) }}">
-                        {{ $buttonText }}
-                        <i class="fa-solid fa-arrow-right text-[13px]"></i>
-                    </a>
-                @endif
+                    <div class="absolute bottom-0 left-0 right-0 p-8 md:p-14">
+                        <div class="border-l-4 border-brand-red pl-8" data-aos="fade-up" data-aos-delay="800">
+                            <p class="font-heading font-bold text-size-header text-white mb-4 leading-snug">
+                                "{{ $ceo_quote }}"
+                            </p>
+                            <p class="text-brand-red font-bold tracking-widest uppercase text-size-sub-header">
+                                — Message from CEO
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Floating Experience Badge --}}
+                <div class="absolute -top-6 right-0 xl:-right-12 2xl:top-12 2xl:-right-12 bg-white p-4 md:p-8 rounded-2xl shadow-2xl border border-gray-100 hidden sm:block animate-float"
+                    data-aos="zoom-in" data-aos-delay="1000">
+                    <div class="text-center">
+                        <span class="block text-size-title font-heading font-bold text-brand-red mb-1">
+                            {{ $years_experience }}
+                        </span>
+                        <span
+                            class="block text-accent font-medium text-brand-charcoal uppercase tracking-tighter leading-tight">
+                            Years of <br> Excellence
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
+
+@pushOnce('css')
+    <style>
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .animate-float {
+            animation: float 5s ease-in-out infinite;
+        }
+    </style>
+@endPushOnce

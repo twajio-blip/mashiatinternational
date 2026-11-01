@@ -8,291 +8,12 @@
             <x-backend.input-field type="number" name="display" id="display" class="w-full"
                 placeholder="Enter number" />
         </div>
-        <div class="relationship-section hidden space-y-3 border border-default border-opacity-25 rounded-[10px] p-4">
-            <div>
-                <h4 class="text-sm font-semibold">Component Relationships</h4>
-                <p class="text-xs text-skin-backend-text-base/70">
-                    Select related components and configure relationship type.
-                </p>
-            </div>
-            <div class="relationship-list space-y-3"></div>
-            <input type="hidden" name="relationship_config" id="relationship_config" value="">
-        </div>
-        <div class="advanced-toggle-section hidden border border-default border-opacity-25 rounded-[10px] p-4">
-            <label class="flex items-center justify-between gap-3 cursor-pointer">
-                <div>
-                    <h4 class="text-sm font-semibold">Advanced Mode</h4>
-                    <p class="text-xs text-skin-backend-text-base/70">Enable field mapping and selected-field display controls.</p>
-                </div>
-                <input id="advanced_mode_toggle" type="checkbox"
-                    class="checkbox bg-[#eaeaea] shrink-0 border-gray-200 rounded text-skin-hover focus:ring-0 focus:ring-offset-0">
-            </label>
-        </div>
-        <div class="advanced-section hidden space-y-3 border border-default border-opacity-25 rounded-[10px] p-4">
-            <div>
-                <h4 class="text-sm font-semibold">Advanced Mode</h4>
-                <p class="text-xs text-skin-backend-text-base/70">
-                    Choose selected fields and map related component fields.
-                </p>
-            </div>
-            <div class="selected-component-fields space-y-2"></div>
-            <div class="advanced-mapping-list space-y-3"></div>
-            <input type="hidden" name="advanced_relationship_config" id="advanced_relationship_config" value="">
-        </div>
     </div>
 
 
 </x-backend.model>
 <script>
     $(document).ready(function() {
-        function parseComponentPayload(raw) {
-            if (!raw) return null;
-            if (typeof raw === 'object') return raw;
-            try {
-                return JSON.parse(raw);
-            } catch (e) {
-                return null;
-            }
-        }
-
-        function uniqueFieldsFromComponent(component) {
-            const fields = component?.component_filed || [];
-            const names = [];
-            fields.forEach((field) => {
-                if (!field || !field.name) return;
-                if (!names.includes(field.name)) {
-                    names.push(field.name);
-                }
-            });
-            return names;
-        }
-
-        function getAllComponentPayloads() {
-            const list = [];
-            $('.add-field-value').each(function() {
-                const parsed = parseComponentPayload($(this).attr('data'));
-                if (parsed && parsed.id && !list.some((item) => Number(item.id) === Number(parsed.id))) {
-                    list.push(parsed);
-                }
-            });
-            return list;
-        }
-
-        function detectRelatedComponents(currentComponent, allComponents) {
-            const relatedIds = new Set();
-            const nameToId = {};
-
-            allComponents.forEach((component) => {
-                nameToId[String(component.name || '').toLowerCase()] = Number(component.id);
-            });
-
-            if (currentComponent?.data_source_component_id) {
-                relatedIds.add(Number(currentComponent.data_source_component_id));
-            }
-
-            (currentComponent?.component_filed || []).forEach((field) => {
-                if (field?.related_component) {
-                    const id = nameToId[String(field.related_component).toLowerCase()];
-                    if (id) relatedIds.add(id);
-                }
-            });
-
-            allComponents.forEach((component) => {
-                if (Number(component.id) === Number(currentComponent.id)) return;
-                if (Number(component?.data_source_component_id) === Number(currentComponent.id)) {
-                    relatedIds.add(Number(component.id));
-                }
-                (component?.component_filed || []).forEach((field) => {
-                    if (String(field?.related_component || '').toLowerCase() === String(currentComponent?.name || '').toLowerCase()) {
-                        relatedIds.add(Number(component.id));
-                    }
-                });
-            });
-
-            return allComponents.filter((component) =>
-                Number(component.id) !== Number(currentComponent.id) && relatedIds.has(Number(component.id))
-            );
-        }
-
-        function getRelationshipTypeLabel(type) {
-            if (type === 'one_to_one') return 'One-to-One';
-            if (type === 'one_to_many') return 'One-to-Many';
-            if (type === 'many_to_one') return 'Many-to-One';
-            return 'One-to-One';
-        }
-
-        function getScopedConfigSource(component) {
-            const mode = window._pagesUiContext?.mode || 'default';
-            if (mode === 'custom' && component?.page_status) {
-                return {
-                    relationship_config: Array.isArray(component.page_status.relationship_config) ? component.page_status.relationship_config : null,
-                    advanced_relationship_config: Array.isArray(component.page_status.advanced_relationship_config) ? component.page_status.advanced_relationship_config : null
-                };
-            }
-
-            return {
-                relationship_config: Array.isArray(component?.default_relationship_config) ? component.default_relationship_config : null,
-                advanced_relationship_config: Array.isArray(component?.default_advanced_relationship_config) ? component.default_advanced_relationship_config : null
-            };
-        }
-
-        function buildRelationshipList(currentComponent, allComponents, advancedMode) {
-            const autoDetected = detectRelatedComponents(currentComponent, allComponents);
-            const autoDetectedIds = new Set(autoDetected.map((item) => Number(item.id)));
-            const scopedConfig = getScopedConfigSource(currentComponent);
-            const savedRelationshipConfig = scopedConfig.relationship_config;
-            const hasSavedRelationshipConfig = savedRelationshipConfig !== null;
-            const savedRelationshipMap = new Map(
-                (savedRelationshipConfig || []).map((cfg) => [Number(cfg.related_component_id), cfg])
-            );
-            const availableComponents = autoDetected;
-
-            if (!availableComponents.length) {
-                return `<p class="text-xs text-skin-backend-text-base/70">No related components detected for this component.</p>`;
-            }
-
-            return availableComponents.map((component) => {
-                const componentId = Number(component.id);
-                const savedConfig = savedRelationshipMap.get(componentId);
-                const checked = hasSavedRelationshipConfig
-                    ? savedRelationshipMap.has(componentId)
-                    : autoDetectedIds.has(componentId);
-                const selectedType = savedConfig?.relationship_type || 'one_to_one';
-                const badge = `<span class="text-[10px] px-2 py-1 rounded bg-[#3762ED] text-white">Auto detected</span>`;
-
-                return `
-                    <div class="border border-default border-opacity-25 rounded-[10px] p-3 space-y-2 relationship-row" data-related-id="${component.id}">
-                        <div class="flex items-center justify-between gap-2">
-                            <div class="flex items-center gap-2 text-sm">
-                                <input type="checkbox" class="relationship-select checkbox bg-[#eaeaea] shrink-0 border-gray-200 rounded text-skin-hover focus:ring-0 focus:ring-offset-0"
-                                    value="${component.id}" ${checked ? 'checked' : ''}>
-                                <span>${component.name}</span>
-                            </div>
-                            ${badge}
-                        </div>
-                        <div class="relationship-config ${checked ? '' : 'hidden'}">
-                            <label class="text-xs block mb-1">Relationship Type</label>
-                            <select class="relationship-type w-full bg-skin-backend-secondary border border-default border-opacity-25 rounded-[6px] px-2 py-2">
-                                <option value="one_to_one" ${selectedType === 'one_to_one' ? 'selected' : ''}>One to One</option>
-                                <option value="one_to_many" ${selectedType === 'one_to_many' ? 'selected' : ''}>One to Many</option>
-                                <option value="many_to_one" ${selectedType === 'many_to_one' ? 'selected' : ''}>Many to One</option>
-                            </select>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function buildAdvancedMappings(currentComponent, selectedRelatedComponents) {
-            const currentFields = uniqueFieldsFromComponent(currentComponent);
-            const scopedConfig = getScopedConfigSource(currentComponent);
-            const savedAdvancedConfig = Array.isArray(scopedConfig.advanced_relationship_config)
-                ? scopedConfig.advanced_relationship_config
-                : [];
-            const selectedCurrentFields = Array.from(new Set(savedAdvancedConfig.flatMap((cfg) =>
-                Array.isArray(cfg?.selected_component_fields) ? cfg.selected_component_fields : []
-            )));
-            const hasSavedCurrentFieldSelection = selectedCurrentFields.length > 0;
-
-            const selectedComponentFieldList = currentFields.length
-                ? currentFields.map((field) => `
-                    <label class="inline-flex items-center gap-2 text-xs mr-3 mb-2">
-                        <input type="checkbox" class="current-display-field checkbox bg-[#eaeaea] shrink-0 border-gray-200 rounded text-skin-hover focus:ring-0 focus:ring-offset-0" value="${field}" ${hasSavedCurrentFieldSelection ? (selectedCurrentFields.includes(field) ? 'checked' : '') : 'checked'}>
-                        <span>${field}</span>
-                    </label>
-                `).join('')
-                : `<span class="text-xs text-skin-backend-text-base/70">No fields found for the selected component.</span>`;
-
-            $('#field-model .selected-component-fields').html(`
-                <div>
-                    <p class="text-xs mb-2">Select Current Component Fields (Only selected fields will be shown on get data time)</p>
-                    <div class="flex flex-wrap gap-1">${selectedComponentFieldList}</div>
-                </div>
-            `);
-
-            if (!selectedRelatedComponents.length) {
-                return `<p class="text-xs text-skin-backend-text-base/70">No related components found. You can still select current component fields.</p>`;
-            }
-
-            return selectedRelatedComponents.map((component) => {
-                const filteredRelatedFields = uniqueFieldsFromComponent(component);
-                const savedForRelated = savedAdvancedConfig.find((cfg) => Number(cfg?.related_component_id) === Number(component.id));
-                const savedDisplayFields = Array.isArray(savedForRelated?.display_fields) ? savedForRelated.display_fields : [];
-                const hasSavedDisplaySelection = savedDisplayFields.length > 0;
-                const relatedCheckboxes = filteredRelatedFields.map((field) => `
-                    <label class="inline-flex items-center gap-2 text-xs mr-3 mb-2">
-                        <input type="checkbox" class="relationship-display-field checkbox bg-black shrink-0 border-gray-200 rounded text-skin-hover focus:ring-0 focus:ring-offset-0"
-                            value="${field}" ${hasSavedDisplaySelection ? (savedDisplayFields.includes(field) ? 'checked' : '') : 'checked'}>
-                        <span>${field}</span>
-                    </label>
-                `).join('');
-
-                return `
-                    <div class="border border-default border-opacity-25 rounded-[10px] p-3 space-y-3 advanced-map-card" data-related-id="${component.id}">
-                        <div class="flex items-center justify-between">
-                            <h5 class="text-sm font-medium">${component.name}</h5>
-                        </div>
-                        <div>
-                            <p class="text-xs mb-2">Related Component Fields to Display</p>
-                            <div class="flex flex-wrap">${relatedCheckboxes || '<span class="text-xs text-skin-backend-text-base/70">No fields available.</span>'}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function refreshAdvancedMappings(currentComponent, allComponents) {
-            const selectedIds = $('#field-model .relationship-select:checked').map(function() {
-                return Number($(this).val());
-            }).get();
-
-            const selectedRelatedComponents = allComponents.filter((component) => selectedIds.includes(Number(component.id)));
-            const html = buildAdvancedMappings(currentComponent, selectedRelatedComponents);
-            $('#field-model .advanced-mapping-list').html(html);
-        }
-
-        function collectRelationshipConfig() {
-            const config = [];
-            $('#field-model .relationship-row').each(function() {
-                const row = $(this);
-                const isSelected = row.find('.relationship-select').is(':checked');
-                if (!isSelected) return;
-                config.push({
-                    related_component_id: Number(row.attr('data-related-id')),
-                    relationship_type: row.find('.relationship-type').val() || 'one_to_one',
-                    data_view: 'list'
-                });
-            });
-
-            $('#field-model #relationship_config').val(JSON.stringify(config));
-            return config;
-        }
-
-        function collectAdvancedRelationshipConfig() {
-            const advanced = [];
-            const selectedCurrentFields = $('#field-model .current-display-field:checked').map(function() {
-                return $(this).val();
-            }).get();
-
-            $('#field-model .advanced-map-card').each(function() {
-                const card = $(this);
-                const relatedId = Number(card.attr('data-related-id'));
-
-                const displayFields = card.find('.relationship-display-field:checked').map(function() {
-                    return $(this).val();
-                }).get();
-
-                advanced.push({
-                    related_component_id: relatedId,
-                    field_mapping: [],
-                    display_fields: displayFields,
-                    selected_component_fields: selectedCurrentFields
-                });
-            });
-            $('#field-model #advanced_relationship_config').val(JSON.stringify(advanced));
-            return advanced;
-        }
-
         $(document).on('click', '.add-field-value', function() {
             let data = $(this).attr('data');
             let dataBaseData = $(this).attr('dataBase');
@@ -313,7 +34,7 @@
 
             Swal.fire({
                 title: "Choose Your Design Option",
-                text: "Select a mode to configure your component fields and relationships.",
+                text: "Select 'Default' for a ready-made design or 'Custom' to personalize your component.",
                 icon: "info",
                 showCancelButton: true,
                 confirmButtonColor: "#FA9B0D",
@@ -323,11 +44,7 @@
                 background: "#1e1e1e", // dark background
                 color: "#ffffff"       // light text color
             }).then((result) => {
-                let value = data.component_filed;
-                const isCustomMode = result.isConfirmed;
-                const isDefaultMode = result.dismiss === Swal.DismissReason.cancel;
-
-                if (isCustomMode) {
+                if (result.isConfirmed) {
                     if (data.component_filed_page_wise.length != 0) {
                         value = data.component_filed_page_wise;
 
@@ -341,13 +58,11 @@
                         fileds.push(`<input type="hidden" name='page_id' value="${page_id}" >`)
                     }
                     HSOverlay.open('#field-model');
-                } else if (isDefaultMode) {
+                } else {
                     value = data.component_filed;
                     // Default mode = use GLOBAL data (no page_id for fields)
                     fileds.push(`<input type="hidden" name='status' value="0" >`)
                     HSOverlay.open('#field-model');
-                } else {
-                    return;
                 }
                 fileds.push(`<input type="hidden" name='component_id' value="${data.id}" >`)
                 if (page_id) {
@@ -377,15 +92,13 @@
                 fileds.push(`<input type="hidden" name='id' value='${data.id}'>`)
                 // Store so submit can send id even if form inputs are in wrong/cloned form
                 // CRITICAL: Only send page_id when Custom mode (status=1), not Default mode
+                const isCustomMode = result.isConfirmed;
                 window._pagesUiContext = {
                     id: data.id,
                     component_id: data.id,
                     page_id: isCustomMode && page_id ? page_id : null,
                     page_id_for_status: page_id || null,
-                    status: isCustomMode ? 1 : 0,
-                    mode: isCustomMode ? 'custom' : 'default',
-                    currentComponent: data,
-                    allComponents: getAllComponentPayloads()
+                    status: isCustomMode ? 1 : 0
                 };
                 textarea = '';
                 value.forEach(element => {
@@ -626,28 +339,6 @@
                 }
                 $('#field-model .static').find('#display').val(initDisplay);
                 $('#field-model .field').html(fileds);
-
-                const componentList = window._pagesUiContext?.allComponents || [];
-                const detectedRelationships = detectRelatedComponents(data, componentList);
-                const relationshipHtml = buildRelationshipList(data, componentList, false);
-
-                $('#field-model .relationship-section').removeClass('hidden');
-                $('#field-model .relationship-list').html(relationshipHtml);
-                collectRelationshipConfig();
-
-                $('#field-model #advanced_mode_toggle').prop('checked', false);
-                $('#field-model .advanced-toggle-section').removeClass('hidden');
-
-                if ($('#field-model #advanced_mode_toggle').is(':checked')) {
-                    $('#field-model .advanced-section').removeClass('hidden');
-                } else {
-                    $('#field-model .advanced-section').addClass('hidden');
-                    $('#field-model .advanced-mapping-list').html('');
-                    $('#field-model .selected-component-fields').html('');
-                }
-
-                refreshAdvancedMappings(data, componentList);
-                collectAdvancedRelationshipConfig();
             });
 
 
@@ -655,40 +346,7 @@
 
         })
 
-        $(document).on('change', '#field-model .relationship-select', function() {
-            const row = $(this).closest('.relationship-row');
-            if ($(this).is(':checked')) {
-                row.find('.relationship-config').removeClass('hidden');
-            } else {
-                row.find('.relationship-config').addClass('hidden');
-            }
-            const ctx = window._pagesUiContext || {};
-            collectRelationshipConfig();
-            refreshAdvancedMappings(ctx.currentComponent || {}, ctx.allComponents || []);
-            collectAdvancedRelationshipConfig();
-        });
 
-        $(document).on('change',
-            '#field-model .relationship-display-field, #field-model .current-display-field, #field-model .relationship-type',
-            function() {
-                collectRelationshipConfig();
-                collectAdvancedRelationshipConfig();
-            }
-        );
-
-        $(document).on('change', '#field-model #advanced_mode_toggle', function() {
-            const ctx = window._pagesUiContext || {};
-            const enabled = $(this).is(':checked');
-            if (enabled) {
-                $('#field-model .advanced-section').removeClass('hidden');
-                refreshAdvancedMappings(ctx.currentComponent || {}, ctx.allComponents || []);
-            } else {
-                $('#field-model .advanced-section').addClass('hidden');
-                $('#field-model .advanced-mapping-list').html('');
-                $('#field-model .selected-component-fields').html('');
-            }
-            collectAdvancedRelationshipConfig();
-        });
 
         $(document).on('click', '.remove-group', function() {
             $(this).closest('.border').remove();
@@ -733,13 +391,6 @@
 
             let thisElement = $(this)
             form.append('_token', $('input[name="_token"]').val());
-
-            const relationshipConfig = collectRelationshipConfig();
-            const advancedRelationshipConfig = collectAdvancedRelationshipConfig();
-            const isAdvancedEnabled = $('#field-model #advanced_mode_toggle').is(':checked');
-            form.set('relationship_config', JSON.stringify(relationshipConfig));
-            form.set('advanced_relationship_config', JSON.stringify(advancedRelationshipConfig));
-            form.set('ui_mode', isAdvancedEnabled ? 'advanced' : ((window._pagesUiContext && window._pagesUiContext.mode) ? window._pagesUiContext.mode : 'default'));
 
             // Normalize empty field values so backend gets a consistent \"null\" string.
             // This helps distinguish between \"not sent\" and \"sent but empty\".

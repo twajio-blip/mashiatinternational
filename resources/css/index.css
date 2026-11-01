@@ -1,7 +1,66 @@
+@import "tailwindcss";
+@source "../**/*.blade.php";
+@source "../**/*.php";
+@source "../js/**/*.js";
+@source "../../app/**/*.php";
+@source "../../routes/**/*.php";
+@source "../../node_modules/preline/dist/*.js";
+@source inline("{w,h,min-w,max-w,min-h,max-h,size}-{0..400}");
+@source inline("{p,px,py,pt,pr,pb,pl,m,mx,my,mt,mr,mb,ml,gap,gap-x,gap-y}-{0..400}");
+@source inline("{-m,-mx,-my,-mt,-mr,-mb,-ml}-{0..400}");
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@theme {
+  --container-295: 73.75rem; /* 1180px */
+
+  --color-default: rgb(var(--default-border));
+  --color-highlight: rgb(var(--highlight-border));
+
+  --color-brand-red: var(--brand-red);
+  --color-brand-redHover: var(--brand-red-hover);
+  --color-brand-charcoal: var(--brand-charcoal);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-blueSoft: #eff6ff;
+  --color-brand-amber: var(--brand-amber);
+  --color-brand-green: var(--brand-green);
+  --color-brand-light: var(--brand-light);
+  --color-brand-gray: var(--brand-gray);
+
+  --color-skin-hover: rgb(var(--color-text-hover));
+  --color-skin-heading: rgb(var(--color-text-heading));
+  --color-skin-header: rgb(var(--color-text-heading));
+  --color-skin-sub-header: rgb(var(--color-text-heading));
+  --color-skin-title: rgb(var(--color-text-title));
+  --color-skin-base: rgb(var(--color-text-base));
+  --color-skin-invert: rgb(var(--color-text-invert));
+  --color-skin-muted: rgb(var(--color-text-muted));
+  --color-skin-primary: rgb(var(--color-background-primary));
+  --color-skin-secondary: rgb(var(--color-background-secondary));
+  --color-skin-default: rgb(var(--color-background-default));
+  --color-skin-content: rgb(var(--color-background-content));
+  --color-skin-button: rgb(var(--color-background-secondary));
+  --color-skin-table-button: rgb(var(--color-background-secondary));
+  --color-skin-table-data: rgb(var(--color-text-muted));
+
+  --color-skin-backend-primary: rgb(var(--color-backend-background-primary));
+  --color-skin-backend-secondary: rgb(var(--color-backend-background-secondary));
+  --color-skin-backend-accent: rgb(var(--color-backend-background-accent));
+  --color-skin-backend-text-base: rgb(var(--color-backend-text-base));
+  --color-skin-backedn-text-base: rgb(var(--color-backend-text-base));
+  --color-skin-backend-base: rgb(var(--color-backend-text-base));
+  --color-skin-backend-heading: rgb(var(--color-backend-text-base));
+  --color-skin-backend-muted: rgb(var(--color-text-muted));
+  --color-skin-backend-invert: rgb(var(--color-text-invert));
+  --color-skin-backend-hover: rgb(var(--color-text-hover));
+  --color-skin-backend-accent: rgb(var(--color-backend-background-accent));
+  --color-skin-backend-content: rgb(var(--color-background-content));
+  --color-skin-backend-highlight: rgb(var(--color-background-default));
+  --color-skin-backend-button: rgb(var(--color-backend-background-accent));
+  --color-skin-backend-button-hover: rgb(var(--color-text-hover));
+  --color-skin-nav-hover-mute: rgb(var(--color-text-muted));
+
+  --font-heading: "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
@@ -55,6 +114,11 @@ All colors MUST be HSL.
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  html,
+  body {
+    font-family: "Inter", system-ui, sans-serif;
   }
 
   .dark {

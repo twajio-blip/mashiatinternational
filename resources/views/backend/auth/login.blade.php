@@ -83,8 +83,8 @@
                                     />
                                 </div>
                             </div>
-                            <a class="text-sm text-skin-backend-text-base text-opacity-50 decoration-2 hover:text-skin-hover transition-colors duraiton-300 font-medium inline-block mb-2 underline underline-offset-4"
-                                href="#">Forgot password?</a>
+                            {{-- <a class="text-sm text-skin-backend-text-base text-opacity-50 decoration-2 hover:text-skin-hover transition-colors duraiton-300 font-medium inline-block mb-2 underline underline-offset-4"
+                                href="#">Forgot password?</a> --}}
 
                         </div>
 

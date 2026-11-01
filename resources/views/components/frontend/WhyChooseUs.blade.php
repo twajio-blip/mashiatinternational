@@ -24,7 +24,7 @@
 </div>
 
 <section id="why-us" class="py-16 lg:py-24 bg-white">
-    <div class="container">
+    <div class="max-w-7xl mx-auto px-4">
 
         {{-- Header Section --}}
         <div class="text-center mb-8 lg:mb-16" data-aos="fade-up" data-aos-offset="50">

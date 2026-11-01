@@ -16,9 +16,6 @@ class ThemeService
     {
         $prepared = collect($data);
         $general = General::first();
-        $prepared = $prepared->merge([
-            'page_edit_enabled' => request()->boolean('page_edit_enabled'),
-        ]);
 
         if (isset($prepared['applyCookie']) == false) {
             $prepared = $prepared->except(['cookie_title', 'cookie_description', 'applyCookie']);

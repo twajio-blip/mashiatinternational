@@ -3,7 +3,6 @@
 namespace App\Services\Pages;
 
 use App\Models\ComponentField;
-use App\Models\ComponentMaster;
 use App\Models\Page;
 use App\Models\PageComponent;
 use App\Models\PageComponentStatus;
@@ -188,19 +187,9 @@ class PagesService
                     ? (int) $prepared['display']
                     : 1;
 
-                $isCustomMode = (int) ($prepared['status'] ?? 0) === 1;
-                $relationshipConfig = self::parseJsonArrayInput($prepared['relationship_config'] ?? null);
-                $advancedRelationshipConfig = self::parseJsonArrayInput($prepared['advanced_relationship_config'] ?? null);
-                $uiMode = !empty($prepared['ui_mode']) && $prepared['ui_mode'] !== 'null'
-                    ? (string) $prepared['ui_mode']
-                    : 'default';
-
                 $payload = [
-                    'status'                        => (int) ($prepared['status'] ?? 0),
-                    'data_view_no'                  => $dataViewNo,
-                    'ui_mode'                       => $isCustomMode ? $uiMode : 'default',
-                    'relationship_config'           => $isCustomMode ? $relationshipConfig : null,
-                    'advanced_relationship_config'  => $isCustomMode ? $advancedRelationshipConfig : null,
+                    'status'       => (int) ($prepared['status'] ?? 0),
+                    'data_view_no' => $dataViewNo,
                 ];
 
                 if ($page_status) {
@@ -210,19 +199,6 @@ class PagesService
                         'page_id'      => $pageIdForStatus,
                         'component_id' => $componentId,
                     ]);
-                }
-
-                // Default mode should apply globally for this component across pages.
-                // Save global relationship config on component template itself.
-                if (!$isCustomMode) {
-                    ComponentMaster::where('id', $componentId)->update([
-                        'default_relationship_config' => $relationshipConfig,
-                        'default_advanced_relationship_config' => $advancedRelationshipConfig,
-                    ]);
-
-                    ComponentField::where('component_id', $componentId)
-                        ->where('page_id', $pageIdForStatus)
-                        ->delete();
                 }
 
                 // When adding to a real page (not hidden), create/update PageComponent so the component is on the page
@@ -240,29 +216,6 @@ class PagesService
             }
         });
     }
-
-    private static function parseJsonArrayInput($value): ?array
-    {
-        if ($value === null || $value === '' || $value === 'null') {
-            return null;
-        }
-
-        if (is_array($value)) {
-            return $value;
-        }
-
-        if (!is_string($value)) {
-            return null;
-        }
-
-        $decoded = json_decode($value, true);
-        if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
-            return null;
-        }
-
-        return $decoded;
-    }
-
     public static function createHiddenPage()
     {
 

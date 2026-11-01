@@ -16,6 +16,12 @@
                         View and manage notifications for customer inquiries and messages.
                     </p>
                 </div>
+                <form action="{{ route('contact.updateAll') }}" method="POST">
+                    @csrf
+                    <button
+                        class="py-2.5 px-4 inline-flex items-center gap-x-2 text-xs  font-[600] rounded-[10px] bg-green-500 hover:bg-green-600 transition-opacity duration-300 text-skin-backend-text-base disabled:opacity-50 disabled:pointer-events-none">View
+                        All</button>
+                </form>
             </div>
             <!-- End Header -->
 
@@ -32,19 +38,16 @@
                                     <h2 class="px-4 border-l border-default border-opacity-[6%]">Number</h2>
                                 </th>
                                 <th class="py-3 text-start min-w-[100px]">
-                                    <h2 class="px-4 border-l border-default border-opacity-[6%]">Email</h2>
+                                    <h2 class="px-4 border-l border-default border-opacity-[6%]">Eamil</h2>
                                 </th>
                                 <th class="py-3 text-start min-w-[150px]">
-                                    <h2 class="px-4 border-l border-default border-opacity-[6%]">Destination</h2>
+                                    <h2 class="px-4 border-l border-default border-opacity-[6%]">Address</h2>
                                 </th>
                                 <th class="py-3 text-start min-w-[150px]">
-                                    <h2 class="px-4 border-l border-default border-opacity-[6%]">Intake</h2>
+                                    <h2 class="px-4 border-l border-default border-opacity-[6%]">Subject</h2>
                                 </th>
                                 <th class="py-3 text-start min-w-[150px]">
-                                    <h2 class="px-4 border-l border-default border-opacity-[6%]">Service</h2>
-                                </th>
-                                <th class="py-3 text-start min-w-[180px]">
-                                    <h2 class="px-4 border-l border-default border-opacity-[6%]">Message</h2>
+                                    <h2 class="px-4 border-l border-default border-opacity-[6%]">Description</h2>
                                 </th>
                                 <th class="py-3 text-center w-[100px]">
                                     <h2 class="px-4 border-l border-default border-opacity-[6%]">Action</h2>
@@ -66,21 +69,18 @@
                                     {{ $contact->email }}
                                 </td>
                                 <td class="py-3">
-                                    {{ $contact->destination ?: ($contact->address ?: '-') }}
+                                    {{ $contact->address }}
                                 </td>
                                 <td class="py-3">
-                                    {{ $contact->intake ?: '-' }}
+                                    {{ $contact->subject }}
                                 </td>
                                 <td class="py-3">
-                                    {{ $contact->service ?: ($contact->subject ?: '-') }}
-                                </td>
-                                <td class="py-3">
-                                    {{ \Illuminate\Support\Str::limit($contact->message ?: $contact->description, 80) ?: '-' }}
+                                    {{ $contact->description }}
                                 </td>
                                 <td class="text-center py-3">
                                     <div class="space-x-2">
                                         <span messageId="{{ $contact->id }}" data-hs-overlay="#details-model"
-                                            data-details="{{ e($contact->toJson()) }}"
+                                            details="{{ $contact }}"
                                             class="view-details-btn cursor-pointer inline-block {{ $contact->status == 1 ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600' }} inline-flex items-center justify-center gap-x-1 text-xs decoration-2 font-medium w-[26px] h-[26px] rounded-full"><i
                                                 class="fa-solid fa-eye"></i></span>
                                     </div>
@@ -89,7 +89,7 @@
                             </tr>
                             @empty
                             <tr class="">
-                                <td class=" px-4 py-2 w-full text-gray-500 text-center" colspan="8">No data found</td>
+                                <td class=" px-4 py-2 w-full text-gray-500 text-center" colspan="7">No data found</td>
                             </tr>
                             @endforelse
 
@@ -143,15 +143,15 @@
             .catch(error => {
                 console.error(error);
             });
-        let details = JSON.parse($(this).attr('data-details'));
-        $('#details-model').find('.details-content .name').html(details.name ?? '-');
-        $('#details-model').find('.details-content .destination').html(details.destination || details.address || '-');
-        $('#details-model').find('.details-content .intake').html(details.intake || '-');
+        let details = $(this).attr('details')
+        details = JSON.parse(details)
+        $('#details-model').find('.details-content .name').html(details.name);
+        $('#details-model').find('.details-content .address').html(details.address);
         $('#details-model').find('.details-content .created_at').html(new Date(details.created_at)
             .toLocaleString());
-        $('#details-model').find('.details-content .service').html(details.service || details.subject || '-');
-        $('#details-model').find('.details-content .message').html(details.message || details.description || '-');
-        $('#details-model').find('.details-content .email').html(details.email ?? '-');
-        $('#details-model').find('.details-content .phone').html(details.phone ?? '-');
+        $('#details-model').find('.details-content .subject').html(details.subject);
+        $('#details-model').find('.details-content .description').html(details.description);
+        $('#details-model').find('.details-content .email').html(details.email);
+        $('#details-model').find('.details-content .phone').html(details.phone);
     });
 </script>

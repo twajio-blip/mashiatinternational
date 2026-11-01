@@ -6,7 +6,7 @@
 @endphp
 
 <section class="custom_py bg-gray-100">
-    <div class="container">
+    <div class="container mx-auto px-4 sm:px-6 md:px-8">
 
         {{-- ================= SECTION HEADER ================= --}}
         @if($section)

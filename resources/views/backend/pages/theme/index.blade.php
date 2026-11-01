@@ -35,16 +35,11 @@
                             <div class="col-span-12 md:col-span-6">
                                 <x-backend.input-label :value="'Website Name'" for="website_name" />
                                 <x-backend.input-field type="text" name="website_name" id='website_name' :value="$general?->website_name"
-                                    placeholder="Website Name" required />
+                                    placeholder="Contact Number" required />
                                 {{-- <label for="for" class="text-sm ">Website Name</label>
                                 <input type="text" name="website_name" value="{{ $general?->website_name }}"
                                     class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none "
                                     placeholder="Contact Number" required> --}}
-                            </div>
-                            <div class="col-span-12 md:col-span-6">
-                                <x-backend.input-label :value="'Website Label'" for="website_label" />
-                                <x-backend.input-field type="text" name="website_label" id='website_label' :value="$general?->website_label"
-                                    placeholder="Website Label" />
                             </div>
                             <div class="col-span-12 md:col-span-6">
                                 <x-backend.input-label :value="'Contact Number'" for="contact" />
@@ -54,16 +49,6 @@
                                 <input type="text" name="contact" value="{{ $general?->contact }}"
                                     class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none "
                                     placeholder="Contact Number" required> --}}
-                            </div>
-                            <div class="col-span-12 md:col-span-6">
-                                <x-backend.input-label :value="'WhatsApp Number'" for="whatsapp_number" />
-                                <x-backend.input-field type="text" name="whatsapp_number" id='whatsapp_number' :value="$general?->whatsapp_number"
-                                    placeholder="WhatsApp Number" />
-                            </div>
-                            <div class="col-span-12 md:col-span-6">
-                                <x-backend.input-label :value="'Office Hour'" for="office_hours" />
-                                <x-backend.input-field type="text" name="office_hours" id='office_hours' :value="$general?->office_hours"
-                                    placeholder="Office Hour" />
                             </div>
                             <div class="col-span-12 md:col-span-6">
                                 <x-backend.input-label :value="'Email'" for="email" />
@@ -91,20 +76,6 @@
                                 <textarea name="description"
                                     class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
                                     rows="3" placeholder="Description" required>{{ $general?->description }}</textarea> --}}
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-12 gap-4">
-                            <h2 class="col-span-12 text-[18px] font-bold">Admin Permissions</h2>
-                            <div class="col-span-12">
-                                <label class="inline-flex items-center cursor-pointer">
-                                    <input name="page_edit_enabled" type="checkbox" value="1"
-                                        class="sr-only peer"
-                                        {{ $general?->page_edit_enabled ? 'checked' : '' }}>
-                                    <div
-                                        class="relative w-11 h-6 bg-skin-backend-secondary peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-default after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-default after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-skin-backend-accent">
-                                    </div>
-                                    <span class="ms-3 text-sm">Enable page and section edit menu</span>
-                                </label>
                             </div>
                         </div>
                         <div class="grid grid-cols-12 gap-4">

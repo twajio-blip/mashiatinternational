@@ -322,25 +322,6 @@ editor.onChange = function(contents) {
 el.value = contents;
 };
 }
-
-$('#pages-create').on('submit', function() {
-$(this).find('textarea').each(function() {
-if (!this._sunEditor) {
-return;
-}
-
-if (typeof this._sunEditor.save === 'function') {
-this._sunEditor.save();
-}
-
-if (typeof this._sunEditor.core?.codeViewDisabled === 'function') {
-this._sunEditor.core.codeViewDisabled();
-}
-
-this.value = this._sunEditor.getContents();
-});
-});
-
 $('#text_content_only').on('change', function() {
 if ($(this).is(':checked')) {
 $('#text-content').show();

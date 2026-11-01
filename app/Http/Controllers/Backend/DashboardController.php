@@ -7,12 +7,10 @@ use Carbon\Carbon;
 use App\Models\VisitorLogs;
 
 use App\Http\Controllers\Controller;
-use App\Models\ComponentField;
-use App\Models\ComponentMaster;
+use App\Models\BlogPost;
 use App\Models\Contact;
-use App\Models\Page;
-use App\Models\PageComponent;
-use App\Models\PageComponentStatus;
+use App\Models\Subscriber;
+use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\Models\Activity;
 
 class DashboardController extends Controller
@@ -20,31 +18,27 @@ class DashboardController extends Controller
     public function index()
     {
 
-        $data['contacts_total'] = Contact::count();
-        $data['contacts_this_month'] = Contact::whereMonth('created_at', Carbon::now()->month)->count();
-        $data['contacts_unread'] = Contact::where('status', 0)->count();
-        $data['contacts_details'] = Contact::latest()->limit(8)->get();
+        // Count of blog posts created in the current month
+        $data['blog_post'] = BlogPost::whereMonth('created_at', Carbon::now()->month)->count();
 
-        $data['pages_total'] = Page::count();
-        $data['active_pages'] = Page::where('status', 1)->count();
-        $data['pages_missing_breadcrumb'] = Page::where('is_breadcrumb', 1)
-            ->where(function ($query) {
-                $query->whereNull('description')->orWhere('description', '');
-            })
-            ->count();
+        // Count of unique subscriber emails created in the current month
+        $data['subscribers'] = Subscriber::whereMonth('created_at', Carbon::now()->month)
+            ->distinct('email')->count('email');
 
-        $data['components_total'] = ComponentMaster::count();
-        $data['page_components_total'] = PageComponent::count();
-        $data['active_page_components'] = PageComponentStatus::where('status', 1)->count();
-        $data['empty_component_fields'] = ComponentField::where(function ($query) {
-                $query->whereNull('value')->orWhere('value', '');
-            })
-            ->count();
+        // Count of contacts added in the current month
+        $data['contacts'] = Contact::whereMonth('created_at', Carbon::now()->month)->count('email');
 
-        $data['pages'] = Page::select('id', 'name', 'permalink', 'status', 'is_breadcrumb', 'description', 'updated_at')
-            ->latest('updated_at')
-            ->limit(6)
+        // Retrieve latest subscriber details (one entry per unique email) created in current month
+        // Group by email and get the max created_at for each
+        $data['subscribers_details'] = DB::table('subscribers')
+            ->select(DB::raw('MAX(created_at) as created_at, email'))
+            ->whereMonth('created_at', now()->month)
+            ->groupBy('email')
+            ->orderByDesc('created_at') // Order by latest subscription date descending
             ->get();
+
+        // Get all contact details created in the current month
+        $data['contacts_details'] = Contact::whereMonth('created_at', Carbon::now()->month)->get();
 
         // Get URLs visited today along with the number of visits per URL, ordered by most visited
         $data['urls'] = $pageVisits = VisitorLogs::selectRaw('url as name, count(url) as visit_count')
@@ -84,7 +78,8 @@ class DashboardController extends Controller
             ->whereDate('created_at', Carbon::today())
             ->get();
 
-        $data['activities'] = Activity::with('causer', 'subject')->latest()->limit(10)->get();
+        // Retrieve latest 20 activity logs with related user (causer) and subject information
+        $data['activities'] = Activity::with('causer', 'subject')->latest()->limit(20)->get();
         
 
         return view('backend.dashboard', compact('data'));

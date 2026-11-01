@@ -2,17 +2,13 @@
     :method="''">
     @csrf
     <div class="details-content p-6 space-y-2">
-        <h2>Name: <span class="name"></span></h2>
-        <h2>Phone / WhatsApp: <span class="phone"></span></h2>
-        <h2>Email: <span class="email"></span></h2>
-        <h2>Preferred destination: <span class="destination"></span></h2>
-        <h2>Intended intake: <span class="intake"></span></h2>
-        <h2>Service required: <span class="service"></span></h2>
-        <h2>Submitted at: <span class="created_at"></span></h2>
-        <div class="py-4">
-            <h2 class="font-semibold">Message</h2>
-            <p class="message pt-2"></p>
-        </div>
+        <h2 class="name"></h2>
+        <h2 class="address"></h2>
+        <h2 class="created_at"></h2>
+        <h2 class="py-4">Subject: <span class="subject"></span></h2>
+        <p class="description pb-4"></p>
+        <h2 class="email"></h2>
+        <h2 class="phone"></h2>
     </div>
 </x-backend.model>
 

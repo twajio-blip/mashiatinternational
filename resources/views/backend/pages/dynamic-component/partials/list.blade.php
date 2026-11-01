@@ -8,13 +8,8 @@
         <thead class="bg-[#323232] font-bold">
             <tr>
                 @foreach($columns as $col)
-                    @php
-                        $fieldId = Str::contains($col, '__id') ? (int) Str::afterLast($col, '__id') : null;
-                        $headerField = $fieldId ? $dynamicComponent->componentFiled->firstWhere('id', $fieldId) : null;
-                        $headerLabel = $headerField->name ?? $col;
-                    @endphp
                     <th class="py-3 text-start min-w-[120px] px-4 {{ !$loop->first ? 'border-l border-default border-opacity-[6%]' : '' }}">
-                        {{ ucfirst(str_replace('_', ' ', $headerLabel)) }}
+                        {{ ucfirst(str_replace('_', ' ', $col)) }}
                     </th>
                 @endforeach
                 <th class="py-3 text-center w-[120px] px-4 border-l border-default border-opacity-[6%]">Action</th>
@@ -27,10 +22,7 @@
                         <td class="py-3 px-4 {{ !$loop->first ? 'border-l border-default border-opacity-[6%]' : '' }}">
                             @php
                                 $val = $row->{$col} ?? '';
-                                $fieldId = Str::contains($col, '__id') ? (int) Str::afterLast($col, '__id') : null;
-                                $field = $fieldId
-                                    ? $dynamicComponent->componentFiled->firstWhere('id', $fieldId)
-                                    : $dynamicComponent->componentFiled->where('group', 1)->firstWhere('name', $col);
+                                $field = $dynamicComponent->componentFiled->where('group', 1)->firstWhere('name', $col);
                                 $fieldType = $field->type ?? null;
                                 $isFileLike = in_array($fieldType, ['file', 'upload', 'upload_multi'], true);
                             @endphp

@@ -27,16 +27,14 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::prefix('admin')->middleware('auth')->group(function () {
-    Route::middleware('page.edit.enabled')->group(function () {
-        Route::resource('component', ComponentController::class);
-        Route::get('component/{id}/export-sql', [ComponentController::class, 'exportSql'])->name('component.export-sql');
-        Route::get('component/{id}/export-sql-view', [ComponentController::class, 'exportSqlView'])->name('component.export-sql-view');
-        Route::post('component/reorder', [ComponentController::class, 'reorder'])->name('component.reorder');
-        Route::post('delete-field', [ComponentController::class, 'fieldDelete'])->name('delete-field');
-        Route::resource('pages', PagesController::class);
+    Route::resource('component', ComponentController::class);
+    Route::get('component/{id}/export-sql', [ComponentController::class, 'exportSql'])->name('component.export-sql');
+    Route::get('component/{id}/export-sql-view', [ComponentController::class, 'exportSqlView'])->name('component.export-sql-view');
+    Route::post('component/reorder', [ComponentController::class, 'reorder'])->name('component.reorder');
+    Route::post('delete-field', [ComponentController::class, 'fieldDelete'])->name('delete-field');
+    Route::resource('pages', PagesController::class);
 
-        Route::post('add-ui', [PagesController::class, 'addui'])->name('add-ui');
-    });
+    Route::post('add-ui', [PagesController::class, 'addui'])->name('add-ui');
 
     // Dynamic component management (field-wise table, insert, edit, delete)
     Route::prefix('dynamic-component')->name('dynamic-component.')->group(function () {

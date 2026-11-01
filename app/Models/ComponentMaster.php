@@ -13,8 +13,6 @@ class ComponentMaster extends BaseModel
     protected $casts = [
         'schema_group_settings' => 'array',
         'related_data' => 'array',
-        'default_relationship_config' => 'array',
-        'default_advanced_relationship_config' => 'array',
         'is_single' => 'boolean',
         'is_connected' => 'boolean',
         'data_source_component_id' => 'integer',
